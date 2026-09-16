@@ -1,0 +1,407 @@
+<robot name="spotmicro_ag" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <material name="shell"><color rgba="0.86 0.88 0.90 1"/></material>
+  <material name="servo"><color rgba="0.15 0.17 0.20 1"/></material>
+  <material name="limb"><color rgba="0.72 0.75 0.78 1"/></material>
+  <material name="shank"><color rgba="0.22 0.25 0.29 1"/></material>
+  <material name="foot"><color rgba="0.94 0.63 0.29 1"/></material>
+  <material name="deck"><color rgba="0.22 0.47 0.76 1"/></material>
+  <material name="sensor"><color rgba="0.30 0.62 0.35 1"/></material>
+  <link name="base_link">
+    <inertial><origin xyz="0 0 0.008000"/><mass value="1.00900"/>
+      <inertia ixx="0.00155319" ixy="0" ixz="0" iyy="0.00318474" iyz="0" izz="0.00381705"/>
+    </inertial>
+    <visual><geometry><box size="0.18 0.114 0.074"/></geometry><material name="shell"/></visual>
+    <collision><geometry><box size="0.18 0.114 0.074"/></geometry></collision>
+  </link>
+  <gazebo reference="base_link"><material>Gazebo/White</material></gazebo>
+  <joint name="deck_joint" type="fixed"><parent link="base_link"/><child link="deck_link"/>
+    <origin xyz="0 0 0.0395"/></joint>
+  <link name="deck_link">
+    <inertial><mass value="0.001"/><inertia ixx="1e-7" ixy="0" ixz="0" iyy="1e-7" iyz="0" izz="1e-7"/></inertial>
+    <visual><geometry><box size="0.180 0.100 0.005"/></geometry><material name="deck"/></visual>
+  </link>
+  <gazebo reference="deck_link"><material>Gazebo/SkyBlue</material></gazebo>
+  <joint name="jetson_joint" type="fixed"><parent link="deck_link"/><child link="jetson_link"/>
+    <origin xyz="0 0 0.0195"/></joint>
+  <link name="jetson_link">
+    <inertial><mass value="0.001"/><inertia ixx="1e-7" ixy="0" ixz="0" iyy="1e-7" iyz="0" izz="1e-7"/></inertial>
+    <visual><geometry><box size="0.103 0.090 0.034"/></geometry><material name="servo"/></visual>
+  </link>
+  <gazebo reference="jetson_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <joint name="ppd42_joint" type="fixed"><parent link="deck_link"/><child link="ppd42_link"/>
+    <origin xyz="-0.072 0 0.0250"/></joint>
+  <link name="ppd42_link">
+    <inertial><mass value="0.001"/><inertia ixx="1e-7" ixy="0" ixz="0" iyy="1e-7" iyz="0" izz="1e-7"/></inertial>
+    <visual><geometry><box size="0.022 0.059 0.045"/></geometry><material name="sensor"/></visual>
+  </link>
+  <gazebo reference="ppd42_link"><material>Gazebo/Green</material></gazebo>
+  <joint name="sgp30_joint" type="fixed"><parent link="deck_link"/><child link="sgp30_link"/>
+    <origin xyz="0.076 0 0.0235"/></joint>
+  <link name="sgp30_link">
+    <inertial><mass value="0.001"/><inertia ixx="1e-7" ixy="0" ixz="0" iyy="1e-7" iyz="0" izz="1e-7"/></inertial>
+    <visual><geometry><box size="0.020 0.040 0.008"/></geometry><material name="sensor"/></visual>
+  </link>
+  <gazebo reference="sgp30_link"><material>Gazebo/Green</material></gazebo>
+  <joint name="fl_abd_joint" type="revolute">
+    <parent link="base_link"/><child link="fl_abd_link"/>
+    <origin xyz="0.0700 0.0390 0"/><axis xyz="1 0 0"/>
+    <limit lower="-0.70" upper="0.70" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="fl_abd_link">
+    <inertial><origin xyz="0 0 0.000000"/><mass value="0.03000"/>
+      <inertia ixx="0.00000800" ixy="0" ixz="0" iyy="0.00000800" iyz="0" izz="0.00000800"/>
+    </inertial>
+    <visual><origin xyz="0 0.0200 0"/>
+      <geometry><box size="0.041 0.041 0.020"/></geometry><material name="servo"/></visual>
+    <visual><origin xyz="0 0.0450 0"/>
+      <geometry><box size="0.030 0.030 0.034"/></geometry><material name="shell"/></visual>
+    <collision><origin xyz="0 0.0300 0"/>
+      <geometry><box size="0.040 0.050 0.034"/></geometry></collision>
+  </link>
+  <joint name="fl_hip_joint" type="revolute">
+    <parent link="fl_abd_link"/><child link="fl_femur_link"/>
+    <origin xyz="0 0.0600 0"/><axis xyz="0 1 0"/>
+    <limit lower="-1.60" upper="1.60" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="fl_femur_link">
+    <inertial><origin xyz="0 0 -0.055500"/><mass value="0.13350"/>
+      <inertia ixx="0.00013957" ixy="0" ixz="0" iyy="0.00014459" iyz="0" izz="0.00001002"/>
+    </inertial>
+    <visual><origin xyz="0 -0.0120 0"/>
+      <geometry><box size="0.040 0.020 0.040"/></geometry><material name="servo"/></visual>
+    <visual><origin xyz="0 0 -0.0555"/>
+      <geometry><box size="0.028 0.014 0.1110"/></geometry><material name="limb"/></visual>
+    <visual><origin xyz="0 -0.0120 -0.1110"/>
+      <geometry><box size="0.040 0.020 0.040"/></geometry><material name="servo"/></visual>
+    <collision><origin xyz="0 0 -0.0555"/>
+      <geometry><box size="0.026 0.014 0.0910"/></geometry></collision>
+  </link>
+  <joint name="fl_knee_joint" type="revolute">
+    <parent link="fl_femur_link"/><child link="fl_tibia_link"/>
+    <origin xyz="0 0 -0.1110"/><axis xyz="0 1 0"/>
+    <limit lower="-2.60" upper="0.0" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="fl_tibia_link">
+    <inertial><origin xyz="0 0 -0.062500"/><mass value="0.02360"/>
+      <inertia ixx="0.00003097" ixy="0" ixz="0" iyy="0.00003130" iyz="0" izz="0.00000081"/>
+    </inertial>
+    <visual><origin xyz="0 0 -0.0560"/>
+      <geometry><box size="0.018 0.011 0.1120"/></geometry><material name="shank"/></visual>
+    <collision><origin xyz="0 0 -0.0560"/>
+      <geometry><box size="0.018 0.011 0.0950"/></geometry></collision>
+  </link>
+  <joint name="fl_foot_joint" type="fixed">
+    <parent link="fl_tibia_link"/><child link="fl_foot_link"/>
+    <origin xyz="0 0 -0.1120"/>
+  </joint>
+  <link name="fl_foot_link">
+    <inertial><mass value="0.004"/>
+      <inertia ixx="2e-7" ixy="0" ixz="0" iyy="2e-7" iyz="0" izz="2e-7"/></inertial>
+    <visual><geometry><sphere radius="0.013"/></geometry><material name="foot"/></visual>
+    <collision><geometry><sphere radius="0.013"/></geometry></collision>
+  </link>
+  <gazebo reference="fl_foot_link">
+    <mu1>1.1</mu1><mu2>1.1</mu2><kp>2e5</kp><kd>15.0</kd>
+    <minDepth>0.001</minDepth><maxVel>0.2</maxVel><material>Gazebo/Orange</material>
+  </gazebo>
+  <gazebo reference="fl_femur_link"><material>Gazebo/Grey</material></gazebo>
+  <gazebo reference="fl_tibia_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <gazebo reference="fl_abd_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <joint name="fr_abd_joint" type="revolute">
+    <parent link="base_link"/><child link="fr_abd_link"/>
+    <origin xyz="0.0700 -0.0390 0"/><axis xyz="1 0 0"/>
+    <limit lower="-0.70" upper="0.70" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="fr_abd_link">
+    <inertial><origin xyz="0 0 0.000000"/><mass value="0.03000"/>
+      <inertia ixx="0.00000800" ixy="0" ixz="0" iyy="0.00000800" iyz="0" izz="0.00000800"/>
+    </inertial>
+    <visual><origin xyz="0 -0.0200 0"/>
+      <geometry><box size="0.041 0.041 0.020"/></geometry><material name="servo"/></visual>
+    <visual><origin xyz="0 -0.0450 0"/>
+      <geometry><box size="0.030 0.030 0.034"/></geometry><material name="shell"/></visual>
+    <collision><origin xyz="0 -0.0300 0"/>
+      <geometry><box size="0.040 0.050 0.034"/></geometry></collision>
+  </link>
+  <joint name="fr_hip_joint" type="revolute">
+    <parent link="fr_abd_link"/><child link="fr_femur_link"/>
+    <origin xyz="0 -0.0600 0"/><axis xyz="0 1 0"/>
+    <limit lower="-1.60" upper="1.60" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="fr_femur_link">
+    <inertial><origin xyz="0 0 -0.055500"/><mass value="0.13350"/>
+      <inertia ixx="0.00013957" ixy="0" ixz="0" iyy="0.00014459" iyz="0" izz="0.00001002"/>
+    </inertial>
+    <visual><origin xyz="0 0.0120 0"/>
+      <geometry><box size="0.040 0.020 0.040"/></geometry><material name="servo"/></visual>
+    <visual><origin xyz="0 0 -0.0555"/>
+      <geometry><box size="0.028 0.014 0.1110"/></geometry><material name="limb"/></visual>
+    <visual><origin xyz="0 0.0120 -0.1110"/>
+      <geometry><box size="0.040 0.020 0.040"/></geometry><material name="servo"/></visual>
+    <collision><origin xyz="0 0 -0.0555"/>
+      <geometry><box size="0.026 0.014 0.0910"/></geometry></collision>
+  </link>
+  <joint name="fr_knee_joint" type="revolute">
+    <parent link="fr_femur_link"/><child link="fr_tibia_link"/>
+    <origin xyz="0 0 -0.1110"/><axis xyz="0 1 0"/>
+    <limit lower="-2.60" upper="0.0" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="fr_tibia_link">
+    <inertial><origin xyz="0 0 -0.062500"/><mass value="0.02360"/>
+      <inertia ixx="0.00003097" ixy="0" ixz="0" iyy="0.00003130" iyz="0" izz="0.00000081"/>
+    </inertial>
+    <visual><origin xyz="0 0 -0.0560"/>
+      <geometry><box size="0.018 0.011 0.1120"/></geometry><material name="shank"/></visual>
+    <collision><origin xyz="0 0 -0.0560"/>
+      <geometry><box size="0.018 0.011 0.0950"/></geometry></collision>
+  </link>
+  <joint name="fr_foot_joint" type="fixed">
+    <parent link="fr_tibia_link"/><child link="fr_foot_link"/>
+    <origin xyz="0 0 -0.1120"/>
+  </joint>
+  <link name="fr_foot_link">
+    <inertial><mass value="0.004"/>
+      <inertia ixx="2e-7" ixy="0" ixz="0" iyy="2e-7" iyz="0" izz="2e-7"/></inertial>
+    <visual><geometry><sphere radius="0.013"/></geometry><material name="foot"/></visual>
+    <collision><geometry><sphere radius="0.013"/></geometry></collision>
+  </link>
+  <gazebo reference="fr_foot_link">
+    <mu1>1.1</mu1><mu2>1.1</mu2><kp>2e5</kp><kd>15.0</kd>
+    <minDepth>0.001</minDepth><maxVel>0.2</maxVel><material>Gazebo/Orange</material>
+  </gazebo>
+  <gazebo reference="fr_femur_link"><material>Gazebo/Grey</material></gazebo>
+  <gazebo reference="fr_tibia_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <gazebo reference="fr_abd_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <joint name="rl_abd_joint" type="revolute">
+    <parent link="base_link"/><child link="rl_abd_link"/>
+    <origin xyz="-0.0700 0.0390 0"/><axis xyz="1 0 0"/>
+    <limit lower="-0.70" upper="0.70" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="rl_abd_link">
+    <inertial><origin xyz="0 0 0.000000"/><mass value="0.03000"/>
+      <inertia ixx="0.00000800" ixy="0" ixz="0" iyy="0.00000800" iyz="0" izz="0.00000800"/>
+    </inertial>
+    <visual><origin xyz="0 0.0200 0"/>
+      <geometry><box size="0.041 0.041 0.020"/></geometry><material name="servo"/></visual>
+    <visual><origin xyz="0 0.0450 0"/>
+      <geometry><box size="0.030 0.030 0.034"/></geometry><material name="shell"/></visual>
+    <collision><origin xyz="0 0.0300 0"/>
+      <geometry><box size="0.040 0.050 0.034"/></geometry></collision>
+  </link>
+  <joint name="rl_hip_joint" type="revolute">
+    <parent link="rl_abd_link"/><child link="rl_femur_link"/>
+    <origin xyz="0 0.0600 0"/><axis xyz="0 1 0"/>
+    <limit lower="-1.60" upper="1.60" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="rl_femur_link">
+    <inertial><origin xyz="0 0 -0.055500"/><mass value="0.13350"/>
+      <inertia ixx="0.00013957" ixy="0" ixz="0" iyy="0.00014459" iyz="0" izz="0.00001002"/>
+    </inertial>
+    <visual><origin xyz="0 -0.0120 0"/>
+      <geometry><box size="0.040 0.020 0.040"/></geometry><material name="servo"/></visual>
+    <visual><origin xyz="0 0 -0.0555"/>
+      <geometry><box size="0.028 0.014 0.1110"/></geometry><material name="limb"/></visual>
+    <visual><origin xyz="0 -0.0120 -0.1110"/>
+      <geometry><box size="0.040 0.020 0.040"/></geometry><material name="servo"/></visual>
+    <collision><origin xyz="0 0 -0.0555"/>
+      <geometry><box size="0.026 0.014 0.0910"/></geometry></collision>
+  </link>
+  <joint name="rl_knee_joint" type="revolute">
+    <parent link="rl_femur_link"/><child link="rl_tibia_link"/>
+    <origin xyz="0 0 -0.1110"/><axis xyz="0 1 0"/>
+    <limit lower="-2.60" upper="0.0" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="rl_tibia_link">
+    <inertial><origin xyz="0 0 -0.062500"/><mass value="0.02360"/>
+      <inertia ixx="0.00003097" ixy="0" ixz="0" iyy="0.00003130" iyz="0" izz="0.00000081"/>
+    </inertial>
+    <visual><origin xyz="0 0 -0.0560"/>
+      <geometry><box size="0.018 0.011 0.1120"/></geometry><material name="shank"/></visual>
+    <collision><origin xyz="0 0 -0.0560"/>
+      <geometry><box size="0.018 0.011 0.0950"/></geometry></collision>
+  </link>
+  <joint name="rl_foot_joint" type="fixed">
+    <parent link="rl_tibia_link"/><child link="rl_foot_link"/>
+    <origin xyz="0 0 -0.1120"/>
+  </joint>
+  <link name="rl_foot_link">
+    <inertial><mass value="0.004"/>
+      <inertia ixx="2e-7" ixy="0" ixz="0" iyy="2e-7" iyz="0" izz="2e-7"/></inertial>
+    <visual><geometry><sphere radius="0.013"/></geometry><material name="foot"/></visual>
+    <collision><geometry><sphere radius="0.013"/></geometry></collision>
+  </link>
+  <gazebo reference="rl_foot_link">
+    <mu1>1.1</mu1><mu2>1.1</mu2><kp>2e5</kp><kd>15.0</kd>
+    <minDepth>0.001</minDepth><maxVel>0.2</maxVel><material>Gazebo/Orange</material>
+  </gazebo>
+  <gazebo reference="rl_femur_link"><material>Gazebo/Grey</material></gazebo>
+  <gazebo reference="rl_tibia_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <gazebo reference="rl_abd_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <joint name="rr_abd_joint" type="revolute">
+    <parent link="base_link"/><child link="rr_abd_link"/>
+    <origin xyz="-0.0700 -0.0390 0"/><axis xyz="1 0 0"/>
+    <limit lower="-0.70" upper="0.70" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="rr_abd_link">
+    <inertial><origin xyz="0 0 0.000000"/><mass value="0.03000"/>
+      <inertia ixx="0.00000800" ixy="0" ixz="0" iyy="0.00000800" iyz="0" izz="0.00000800"/>
+    </inertial>
+    <visual><origin xyz="0 -0.0200 0"/>
+      <geometry><box size="0.041 0.041 0.020"/></geometry><material name="servo"/></visual>
+    <visual><origin xyz="0 -0.0450 0"/>
+      <geometry><box size="0.030 0.030 0.034"/></geometry><material name="shell"/></visual>
+    <collision><origin xyz="0 -0.0300 0"/>
+      <geometry><box size="0.040 0.050 0.034"/></geometry></collision>
+  </link>
+  <joint name="rr_hip_joint" type="revolute">
+    <parent link="rr_abd_link"/><child link="rr_femur_link"/>
+    <origin xyz="0 -0.0600 0"/><axis xyz="0 1 0"/>
+    <limit lower="-1.60" upper="1.60" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="rr_femur_link">
+    <inertial><origin xyz="0 0 -0.055500"/><mass value="0.13350"/>
+      <inertia ixx="0.00013957" ixy="0" ixz="0" iyy="0.00014459" iyz="0" izz="0.00001002"/>
+    </inertial>
+    <visual><origin xyz="0 0.0120 0"/>
+      <geometry><box size="0.040 0.020 0.040"/></geometry><material name="servo"/></visual>
+    <visual><origin xyz="0 0 -0.0555"/>
+      <geometry><box size="0.028 0.014 0.1110"/></geometry><material name="limb"/></visual>
+    <visual><origin xyz="0 0.0120 -0.1110"/>
+      <geometry><box size="0.040 0.020 0.040"/></geometry><material name="servo"/></visual>
+    <collision><origin xyz="0 0 -0.0555"/>
+      <geometry><box size="0.026 0.014 0.0910"/></geometry></collision>
+  </link>
+  <joint name="rr_knee_joint" type="revolute">
+    <parent link="rr_femur_link"/><child link="rr_tibia_link"/>
+    <origin xyz="0 0 -0.1110"/><axis xyz="0 1 0"/>
+    <limit lower="-2.60" upper="0.0" effort="1.08" velocity="8.0"/>
+    <dynamics damping="0.10" friction="0.02"/>
+  </joint>
+  <link name="rr_tibia_link">
+    <inertial><origin xyz="0 0 -0.062500"/><mass value="0.02360"/>
+      <inertia ixx="0.00003097" ixy="0" ixz="0" iyy="0.00003130" iyz="0" izz="0.00000081"/>
+    </inertial>
+    <visual><origin xyz="0 0 -0.0560"/>
+      <geometry><box size="0.018 0.011 0.1120"/></geometry><material name="shank"/></visual>
+    <collision><origin xyz="0 0 -0.0560"/>
+      <geometry><box size="0.018 0.011 0.0950"/></geometry></collision>
+  </link>
+  <joint name="rr_foot_joint" type="fixed">
+    <parent link="rr_tibia_link"/><child link="rr_foot_link"/>
+    <origin xyz="0 0 -0.1120"/>
+  </joint>
+  <link name="rr_foot_link">
+    <inertial><mass value="0.004"/>
+      <inertia ixx="2e-7" ixy="0" ixz="0" iyy="2e-7" iyz="0" izz="2e-7"/></inertial>
+    <visual><geometry><sphere radius="0.013"/></geometry><material name="foot"/></visual>
+    <collision><geometry><sphere radius="0.013"/></geometry></collision>
+  </link>
+  <gazebo reference="rr_foot_link">
+    <mu1>1.1</mu1><mu2>1.1</mu2><kp>2e5</kp><kd>15.0</kd>
+    <minDepth>0.001</minDepth><maxVel>0.2</maxVel><material>Gazebo/Orange</material>
+  </gazebo>
+  <gazebo reference="rr_femur_link"><material>Gazebo/Grey</material></gazebo>
+  <gazebo reference="rr_tibia_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <gazebo reference="rr_abd_link"><material>Gazebo/DarkGrey</material></gazebo>
+  <gazebo><self_collide>false</self_collide></gazebo>
+  <gazebo reference="base_link">
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on><update_rate>100</update_rate>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <ros><remapping>~/out:=/imu/data</remapping></ros>
+        <frame_name>base_link</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware><plugin>gazebo_ros2_control/GazeboSystem</plugin></hardware>
+    <joint name="fl_abd_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="fl_hip_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="fl_knee_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="fr_abd_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="fr_hip_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="fr_knee_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="rl_abd_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="rl_hip_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="rl_knee_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="rr_abd_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="rr_hip_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="rr_knee_joint">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+  </ros2_control>
+  <gazebo>
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+      <parameters>$(find spotmicro_ag_sim)/config/controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+</robot>

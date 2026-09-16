@@ -1,0 +1,12 @@
+fl_abd_joint
+fl_hip_joint
+fl_knee_joint
+fr_abd_joint
+fr_hip_joint
+fr_knee_joint
+rl_abd_joint
+rl_hip_joint
+rl_knee_joint
+rr_abd_joint
+rr_hip_joint
+rr_knee_joint

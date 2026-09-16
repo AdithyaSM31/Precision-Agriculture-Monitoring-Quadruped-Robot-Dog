@@ -1,0 +1,27 @@
+# ROS 2 build artefacts - regenerate with: colcon build --symlink-install
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Generated from gen_model.py - kept out so the generator stays the source of truth
+# (comment these two lines out if you prefer to version the generated URDF)
+# ros2_ws/src/spotmicro_ag_sim/urdf/*.xacro
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Archives / duplicates
+*.zip
+
+# Scratch and diagnostics
+ros2_ws/diag*.sh
+ros2_ws/trace.sh
+ros2_ws/test_sim.sh
+ros2_ws/args.sh
+ros2_ws/moving.sh

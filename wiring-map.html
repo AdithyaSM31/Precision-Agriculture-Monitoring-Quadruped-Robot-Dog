@@ -1,0 +1,429 @@
+<title>Quadruped Wiring Map</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#F7F8FA; --card:#FFFFFF; --ink:#1A1E26; --muted:#5C6674; --faint:#8A93A0;
+  --line:#DDE1E8; --line-strong:#C4CAD4;
+  --rail:#C9741F; --rail-bg:#FBF0E2;
+  --signal:#20777A; --signal-bg:#E4F1F1;
+  --danger:#B23A26; --danger-bg:#FBEAE6;
+  --gnd:#6B7280; --gnd-bg:#EEF0F3;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#14171C; --card:#1B1F26; --ink:#E8EBF0; --muted:#98A2B0; --faint:#6E7886;
+    --line:#2A303A; --line-strong:#3A424F;
+    --rail:#E29344; --rail-bg:#2E2318;
+    --signal:#4FB3B5; --signal-bg:#142A2B;
+    --danger:#E0705A; --danger-bg:#2E1A16;
+    --gnd:#8A93A0; --gnd-bg:#23272F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14171C; --card:#1B1F26; --ink:#E8EBF0; --muted:#98A2B0; --faint:#6E7886;
+  --line:#2A303A; --line-strong:#3A424F;
+  --rail:#E29344; --rail-bg:#2E2318;
+  --signal:#4FB3B5; --signal-bg:#142A2B;
+  --danger:#E0705A; --danger-bg:#2E1A16;
+  --gnd:#8A93A0; --gnd-bg:#23272F;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:48px 24px 96px}
+h1{font-size:2.1rem;font-weight:700;letter-spacing:-.02em;margin:0 0 6px;text-wrap:balance}
+h2{font-size:1.28rem;font-weight:600;letter-spacing:-.01em;margin:0 0 4px;text-wrap:balance}
+h3{font-size:.95rem;font-weight:600;margin:0 0 8px}
+p{margin:0 0 12px;max-width:68ch}
+a{color:var(--signal)}
+code,.m{font-family:var(--mono);font-size:.86em;font-variant-numeric:tabular-nums}
+.lede{color:var(--muted);font-size:1.02rem;max-width:64ch;margin-bottom:0}
+
+.eyebrow{font-family:var(--mono);font-size:.72rem;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 10px}
+
+header.top{border-bottom:2px solid var(--ink);padding-bottom:24px;margin-bottom:8px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:18px;font-family:var(--mono);
+  font-size:.78rem;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
+
+section{padding-top:44px}
+.sechead{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line-strong);
+  padding-bottom:10px;margin-bottom:20px}
+.sechead .n{font-family:var(--mono);font-size:.8rem;color:var(--faint);font-weight:500}
+
+/* alerts */
+.alert{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:16px 18px;border-radius:3px;
+  background:var(--danger-bg);border-left:3px solid var(--danger);margin:0 0 14px}
+.alert .tag{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--danger);white-space:nowrap;padding-top:2px}
+.alert p{margin:0;max-width:none;font-size:.93rem}
+.alert p+p{margin-top:8px}
+
+.note{padding:14px 18px;border-radius:3px;background:var(--card);border:1px solid var(--line);
+  margin:14px 0;font-size:.93rem}
+.note p{margin:0;max-width:none}
+.note p+p{margin-top:8px}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+.scroll{overflow-x:auto;margin:0 0 8px}
+th{text-align:left;font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--faint);padding:0 14px 8px 0;border-bottom:1px solid var(--line-strong);
+  white-space:nowrap}
+td{padding:9px 14px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* pin header */
+.hdr{background:var(--card);border:1px solid var(--line-strong);border-radius:4px;padding:18px;
+  overflow-x:auto}
+.pins{display:grid;grid-template-columns:1fr auto auto 1fr;gap:3px 0;min-width:560px;
+  font-family:var(--mono);font-size:.76rem;font-variant-numeric:tabular-nums}
+.pins .lbl{padding:5px 10px;white-space:nowrap;border-radius:2px 0 0 2px}
+.pins .lbl.r{text-align:left;border-radius:0 2px 2px 0}
+.pins .lbl.l{text-align:right}
+.pins .num{width:30px;text-align:center;padding:5px 0;color:var(--faint);font-weight:500;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.pins .num.l{border-left:1px solid var(--line)}
+.pins .num.r{border-right:1px solid var(--line)}
+.u-pwr{background:var(--rail-bg);color:var(--rail);font-weight:600}
+.u-gnd{background:var(--gnd-bg);color:var(--gnd);font-weight:500}
+.u-sig{background:var(--signal-bg);color:var(--signal);font-weight:600}
+.u-off{color:var(--faint)}
+.pins .num.on{color:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:16px;font-family:var(--mono);font-size:.72rem}
+.legend span{display:flex;align-items:center;gap:7px;color:var(--muted)}
+.legend i{width:11px;height:11px;border-radius:2px;display:block}
+
+/* generic cards */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:16px 18px}
+.box h3{color:var(--ink)}
+.box p{font-size:.9rem;margin:0;max-width:none;color:var(--muted)}
+.box p+p{margin-top:8px}
+
+/* steps */
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:0;display:flex;flex-direction:column;gap:2px}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:14px;
+  padding:13px 0;border-bottom:1px solid var(--line)}
+ol.steps li:last-child{border-bottom:none}
+ol.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:.78rem;
+  font-weight:600;color:var(--signal);padding-top:2px}
+ol.steps .t{font-weight:600;font-size:.95rem;margin-bottom:3px}
+ol.steps .d{font-size:.9rem;color:var(--muted)}
+ol.steps .d code{background:var(--signal-bg);color:var(--signal);padding:1px 6px;border-radius:2px}
+
+svg{display:block;width:100%;height:auto}
+.fig{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:20px 16px;
+  overflow-x:auto}
+.cap{font-size:.8rem;color:var(--faint);margin-top:10px;font-family:var(--mono)}
+ul.tight{margin:0;padding-left:18px;font-size:.92rem}
+ul.tight li{margin-bottom:6px}
+strong{font-weight:600}
+@media (prefers-reduced-motion:no-preference){a{transition:opacity .15s}}
+a:focus-visible,td:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Precision Agriculture Quadruped &middot; MVP Build</p>
+  <h1>Quadruped Wiring Map</h1>
+  <p class="lede">Every connection for the stand-and-walk MVP: Jetson Orin Nano, PCA9685, 12&nbsp;&times;&nbsp;MG996R, SGP30 and PPD42, powered from one 3S LiPo.</p>
+  <div class="meta">
+    <span><b>Pack</b> 3S 2200&nbsp;mAh 30C</span>
+    <span><b>Servo rail</b> 6.0&nbsp;V</span>
+    <span><b>Jetson</b> 9&ndash;19&nbsp;V</span>
+    <span><b>I²C</b> /dev/i2c-7</span>
+    <span><b>Logic</b> 3.3&nbsp;V</span>
+  </div>
+</header>
+
+<section>
+  <div class="sechead"><span class="n">00</span><h2>Read before you solder</h2></div>
+
+  <div class="alert">
+    <span class="tag">Kills the&nbsp;Jetson</span>
+    <div>
+      <p><strong>Jetson GPIO is 3.3&nbsp;V and is not 5&nbsp;V tolerant.</strong> The PPD42 output swings to 4.0&nbsp;V and the HC-SR04 ECHO pins to 5&nbsp;V. All three must go through a divider before they touch the header. Section&nbsp;04.</p>
+      <p><strong>The Jetson will not run on 5&nbsp;V.</strong> Its barrel jack needs 9&ndash;19&nbsp;V. Feed it from the pack, never from a 5&nbsp;V regulator.</p>
+    </div>
+  </div>
+
+  <div class="alert">
+    <span class="tag">Kills the&nbsp;build</span>
+    <div>
+      <p><strong>Do not run servo current through the PCA9685.</strong> Its V+ screw terminal and PCB traces are not rated for 15&nbsp;A peaks. Servo power gets its own bus. Section&nbsp;02.</p>
+      <p><strong>Centre all 12 servos before fitting a single horn.</strong> Horns bolted on at arbitrary angles mean the first gait command drives joints past their stops and strips gears. Section&nbsp;07.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="n">01</span><h2>Power chain</h2></div>
+  <p>One pack, three branches. Everything downstream of the switch shares a single ground, established at the battery negative.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 960 372" role="img" aria-label="Power distribution from the 3S LiPo through fuse and switch to two UBECs and the Jetson">
+    <defs>
+      <marker id="ar" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+        <path d="M0,1 L8,4.5 L0,8 z" fill="var(--line-strong)"/>
+      </marker>
+    </defs>
+    <g font-family="IBM Plex Mono, monospace" font-size="12">
+
+      <rect x="8" y="142" width="132" height="74" rx="3" fill="var(--rail-bg)" stroke="var(--rail)" stroke-width="1.5"/>
+      <text x="74" y="169" text-anchor="middle" fill="var(--rail)" font-size="13" font-weight="600">3S LiPo</text>
+      <text x="74" y="187" text-anchor="middle" fill="var(--rail)">11.1 V 2200 mAh</text>
+      <text x="74" y="203" text-anchor="middle" fill="var(--rail)">30C = 66 A</text>
+
+      <line x1="140" y1="179" x2="176" y2="179" stroke="var(--line-strong)" stroke-width="2" marker-end="url(#ar)"/>
+      <text x="158" y="168" text-anchor="middle" fill="var(--faint)" font-size="10">XT-60</text>
+
+      <rect x="180" y="157" width="92" height="44" rx="3" fill="var(--card)" stroke="var(--line-strong)" stroke-width="1.5"/>
+      <text x="226" y="176" text-anchor="middle" fill="var(--ink)" font-weight="600">FUSE</text>
+      <text x="226" y="192" text-anchor="middle" fill="var(--muted)">30 A</text>
+
+      <line x1="272" y1="179" x2="298" y2="179" stroke="var(--line-strong)" stroke-width="2" marker-end="url(#ar)"/>
+
+      <rect x="302" y="157" width="92" height="44" rx="3" fill="var(--card)" stroke="var(--line-strong)" stroke-width="1.5"/>
+      <text x="348" y="176" text-anchor="middle" fill="var(--ink)" font-weight="600">SWITCH</text>
+      <text x="348" y="192" text-anchor="middle" fill="var(--muted)">20 A</text>
+
+      <line x1="394" y1="179" x2="440" y2="179" stroke="var(--line-strong)" stroke-width="2"/>
+      <circle cx="440" cy="179" r="4.5" fill="var(--line-strong)"/>
+      <text x="440" y="205" text-anchor="middle" fill="var(--faint)" font-size="10">junction</text>
+
+      <path d="M440,179 L440,66 L494,66" fill="none" stroke="var(--line-strong)" stroke-width="2" marker-end="url(#ar)"/>
+      <path d="M440,179 L494,179" fill="none" stroke="var(--line-strong)" stroke-width="2" marker-end="url(#ar)"/>
+      <path d="M440,179 L440,296 L494,296" fill="none" stroke="var(--line-strong)" stroke-width="2" marker-end="url(#ar)"/>
+
+      <rect x="498" y="40" width="186" height="52" rx="3" fill="var(--card)" stroke="var(--rail)" stroke-width="1.5"/>
+      <text x="591" y="61" text-anchor="middle" fill="var(--rail)" font-weight="600">UBEC #1 &rarr; 6.0 V</text>
+      <text x="591" y="79" text-anchor="middle" fill="var(--muted)">8 A</text>
+
+      <rect x="498" y="153" width="186" height="52" rx="3" fill="var(--card)" stroke="var(--rail)" stroke-width="1.5"/>
+      <text x="591" y="174" text-anchor="middle" fill="var(--rail)" font-weight="600">UBEC #2 &rarr; 6.0 V</text>
+      <text x="591" y="192" text-anchor="middle" fill="var(--muted)">8 A</text>
+
+      <rect x="498" y="270" width="186" height="52" rx="3" fill="var(--card)" stroke="var(--signal)" stroke-width="1.5"/>
+      <text x="591" y="291" text-anchor="middle" fill="var(--signal)" font-weight="600">14 AWG direct</text>
+      <text x="591" y="309" text-anchor="middle" fill="var(--muted)">+ 1000 µF</text>
+
+      <line x1="684" y1="66" x2="722" y2="66" stroke="var(--line-strong)" stroke-width="2" marker-end="url(#ar)"/>
+      <line x1="684" y1="179" x2="722" y2="179" stroke="var(--line-strong)" stroke-width="2" marker-end="url(#ar)"/>
+      <line x1="684" y1="296" x2="722" y2="296" stroke="var(--line-strong)" stroke-width="2" marker-end="url(#ar)"/>
+
+      <rect x="726" y="40" width="212" height="52" rx="3" fill="var(--rail-bg)" stroke="var(--rail)" stroke-width="1.5"/>
+      <text x="832" y="61" text-anchor="middle" fill="var(--rail)" font-weight="600">Servo bus A</text>
+      <text x="832" y="79" text-anchor="middle" fill="var(--rail)">CH0&ndash;CH5 &nbsp;(6 servos)</text>
+
+      <rect x="726" y="153" width="212" height="52" rx="3" fill="var(--rail-bg)" stroke="var(--rail)" stroke-width="1.5"/>
+      <text x="832" y="174" text-anchor="middle" fill="var(--rail)" font-weight="600">Servo bus B</text>
+      <text x="832" y="192" text-anchor="middle" fill="var(--rail)">CH6&ndash;CH11 (6 servos)</text>
+
+      <rect x="726" y="270" width="212" height="52" rx="3" fill="var(--signal-bg)" stroke="var(--signal)" stroke-width="1.5"/>
+      <text x="832" y="291" text-anchor="middle" fill="var(--signal)" font-weight="600">Jetson barrel jack</text>
+      <text x="832" y="309" text-anchor="middle" fill="var(--signal)">5.5 &times; 2.5 mm</text>
+
+      <path d="M74,142 L74,110 L300,110" fill="none" stroke="var(--gnd)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+      <text x="310" y="114" fill="var(--gnd)" font-size="11">balance lead (JST-XH) &rarr; low-voltage alarm, set 3.5 V/cell</text>
+
+      <text x="8" y="352" fill="var(--faint)" font-size="11">Average draw ≈ 4.5 A &nbsp;·&nbsp; start-up spike ≈ 11 A &nbsp;·&nbsp; pack delivers 66 A continuous</text>
+    </g>
+  </svg>
+  <p class="cap">Fuse before switch, so the fuse protects the switch too.</p>
+  </div>
+
+  <div class="note">
+    <p><strong>Why the Jetson runs straight off the pack.</strong> A 3S swings 9.6&ndash;12.6&nbsp;V, which sits inside the Orin Nano's 9&ndash;19&nbsp;V window, so no converter is needed. Three conditions make that safe: set the alarm at <strong>3.5&nbsp;V/cell</strong> and land when it sounds; run a <strong>separate 14&nbsp;AWG pair</strong> to the Jetson so servo current doesn't drag its supply down through shared wire; and fit the <strong>1000&nbsp;µF capacitor</strong> at the barrel plug.</p>
+    <p>If you free up the budget later, a 12&nbsp;V buck-boost in this branch removes the brownout risk entirely.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="n">02</span><h2>Servo power bus</h2></div>
+  <p>The PCA9685 generates the position pulses. It must not carry the current that answers them.</p>
+
+  <div class="grid2">
+    <div class="box">
+      <h3>To the PCA9685</h3>
+      <p><strong>Signal</strong> (yellow/orange) and <strong>GND</strong> (brown/black) only, into the 3-pin headers CH0&ndash;CH11.</p>
+      <p>The V+ screw terminal stays <strong>empty</strong>. The chip runs off VCC.</p>
+    </div>
+    <div class="box">
+      <h3>To the 6 V bus</h3>
+      <p><strong>V+</strong> (red) of all 12 servos, split six to each UBEC across two terminal blocks.</p>
+      <p>Easiest build: use servo extension leads, cut the red wire mid-span, and splice it to the bus.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <p>Two UBECs rather than one because 12 MG996R draw roughly 5&nbsp;A while walking and spike near 15&nbsp;A when several joints move together. Splitting them six and six halves the current in any one wire and leaves headroom on both regulators.</p>
+  </div>
+
+  <div class="scroll"><table>
+    <thead><tr><th>PCA9685 pin</th><th>Goes to</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="n">VCC</td><td class="n">Jetson pin 1 &mdash; 3.3 V</td><td>Logic supply. Keeps I²C at 3.3 V.</td></tr>
+      <tr><td class="n">GND</td><td class="n">Jetson pin 6 + common ground</td><td>Must tie to the servo ground bus.</td></tr>
+      <tr><td class="n">SDA</td><td class="n">Jetson pin 3</td><td>I²C bus 7</td></tr>
+      <tr><td class="n">SCL</td><td class="n">Jetson pin 5</td><td>I²C bus 7</td></tr>
+      <tr><td class="n">V+</td><td class="n">not connected</td><td>Deliberate &mdash; see above.</td></tr>
+      <tr><td class="n">OE</td><td class="n">not connected</td><td>Pulled low on-board; outputs enabled.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="sechead"><span class="n">03</span><h2>Jetson 40-pin header</h2></div>
+  <p>Laid out as the connector sits on the board &mdash; pin&nbsp;1 top-left, odd numbers down the left column. Nine pins are used; the rest stay free.</p>
+
+  <div class="hdr">
+    <div class="pins">
+      <div class="lbl l u-pwr">3.3 V &rarr; PCA9685 VCC, SGP30, MPU6050</div><div class="num l on">1</div><div class="num r on">2</div><div class="lbl r u-pwr">5 V &rarr; PPD42, HC-SR04 &times;2</div>
+      <div class="lbl l u-sig">I²C SDA &mdash; bus 7</div><div class="num l on">3</div><div class="num r on">4</div><div class="lbl r u-pwr">5 V (spare)</div>
+      <div class="lbl l u-sig">I²C SCL &mdash; bus 7</div><div class="num l on">5</div><div class="num r on">6</div><div class="lbl r u-gnd">GND &mdash; star point</div>
+      <div class="lbl l u-sig">GPIO &mdash; PPD42 OUT (divided)</div><div class="num l on">7</div><div class="num r">8</div><div class="lbl r u-off">UART1 TX &mdash; reserved, GPS</div>
+      <div class="lbl l u-off">GND</div><div class="num l">9</div><div class="num r">10</div><div class="lbl r u-off">UART1 RX &mdash; reserved, GPS</div>
+      <div class="lbl l u-off">&mdash;</div><div class="num l">11</div><div class="num r">12</div><div class="lbl r u-off">&mdash;</div>
+      <div class="lbl l u-off">&mdash;</div><div class="num l">13</div><div class="num r">14</div><div class="lbl r u-gnd">GND &mdash; sensor return</div>
+      <div class="lbl l u-off">&mdash;</div><div class="num l">15</div><div class="num r">16</div><div class="lbl r u-off">&mdash;</div>
+      <div class="lbl l u-off">3.3 V</div><div class="num l">17</div><div class="num r">18</div><div class="lbl r u-off">&mdash;</div>
+      <div class="lbl l u-off">&mdash;</div><div class="num l">19</div><div class="num r">20</div><div class="lbl r u-off">GND</div>
+      <div class="lbl l u-off">&mdash;</div><div class="num l">21</div><div class="num r">22</div><div class="lbl r u-off">&mdash;</div>
+      <div class="lbl l u-off">&mdash;</div><div class="num l">23</div><div class="num r">24</div><div class="lbl r u-off">&mdash;</div>
+      <div class="lbl l u-off">GND</div><div class="num l">25</div><div class="num r">26</div><div class="lbl r u-off">&mdash;</div>
+      <div class="lbl l u-off">I²C SDA &mdash; bus 1, unused</div><div class="num l">27</div><div class="num r">28</div><div class="lbl r u-off">I²C SCL &mdash; bus 1, unused</div>
+      <div class="lbl l u-sig">GPIO &mdash; TRIG, left sonar</div><div class="num l on">29</div><div class="num r">30</div><div class="lbl r u-off">GND</div>
+      <div class="lbl l u-sig">GPIO &mdash; ECHO, left (divided)</div><div class="num l on">31</div><div class="num r on">32</div><div class="lbl r u-sig">GPIO &mdash; TRIG, right sonar</div>
+      <div class="lbl l u-sig">GPIO &mdash; ECHO, right (divided)</div><div class="num l on">33</div><div class="num r">34</div><div class="lbl r u-gnd">GND &mdash; sensor return</div>
+      <div class="lbl l u-off">&mdash;</div><div class="num l">35</div><div class="num r">36</div><div class="lbl r u-off">&mdash;</div>
+      <div class="lbl l u-off">&mdash;</div><div class="num l">37</div><div class="num r">38</div><div class="lbl r u-off">&mdash;</div>
+      <div class="lbl l u-off">GND</div><div class="num l">39</div><div class="num r">40</div><div class="lbl r u-off">&mdash;</div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--rail)"></i>power</span>
+      <span><i style="background:var(--signal)"></i>signal</span>
+      <span><i style="background:var(--gnd)"></i>ground in use</span>
+      <span><i style="background:var(--line-strong)"></i>free</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <p>Pins&nbsp;3 and&nbsp;5 appear in Linux as <code>/dev/i2c-7</code>, not i2c-1 &mdash; the header silkscreen says I2C1 but the kernel bus number is 7. Pins&nbsp;27/28 are a second bus you don't need.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="n">04</span><h2>Level shifting</h2></div>
+  <p>Three signals leave a 5&nbsp;V device and enter a 3.3&nbsp;V input. Each needs a two-resistor divider. Nothing else on the robot does.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 620 200" role="img" aria-label="Resistor divider: 1 kilohm in series, 2 kilohm to ground, dropping 5 volts to 3.3 volts">
+    <g font-family="IBM Plex Mono, monospace" font-size="12">
+      <text x="10" y="66" fill="var(--muted)">5 V source</text>
+      <text x="10" y="82" fill="var(--faint)" font-size="11">PPD42 OUT / ECHO</text>
+      <line x1="118" y1="62" x2="192" y2="62" stroke="var(--line-strong)" stroke-width="2"/>
+      <rect x="192" y="48" width="86" height="28" rx="2" fill="var(--card)" stroke="var(--signal)" stroke-width="1.5"/>
+      <text x="235" y="67" text-anchor="middle" fill="var(--signal)" font-weight="600">1 kΩ</text>
+      <line x1="278" y1="62" x2="392" y2="62" stroke="var(--line-strong)" stroke-width="2"/>
+      <circle cx="352" cy="62" r="4" fill="var(--line-strong)"/>
+      <line x1="352" y1="62" x2="352" y2="104" stroke="var(--line-strong)" stroke-width="2"/>
+      <rect x="309" y="104" width="86" height="28" rx="2" fill="var(--card)" stroke="var(--signal)" stroke-width="1.5"/>
+      <text x="352" y="123" text-anchor="middle" fill="var(--signal)" font-weight="600">2 kΩ</text>
+      <line x1="352" y1="132" x2="352" y2="158" stroke="var(--line-strong)" stroke-width="2"/>
+      <line x1="330" y1="158" x2="374" y2="158" stroke="var(--gnd)" stroke-width="2.5"/>
+      <line x1="337" y1="165" x2="367" y2="165" stroke="var(--gnd)" stroke-width="2"/>
+      <line x1="345" y1="172" x2="359" y2="172" stroke="var(--gnd)" stroke-width="1.5"/>
+      <text x="384" y="164" fill="var(--gnd)" font-size="11">GND</text>
+      <line x1="392" y1="62" x2="452" y2="62" stroke="var(--line-strong)" stroke-width="2" marker-end="url(#ar)"/>
+      <text x="458" y="58" fill="var(--signal)" font-weight="600">3.33 V</text>
+      <text x="458" y="75" fill="var(--faint)" font-size="11">&rarr; Jetson GPIO</text>
+    </g>
+  </svg>
+  <p class="cap">One divider per signal. Three in total.</p>
+  </div>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Signal</th><th>Source level</th><th>At the Jetson</th><th>Header pin</th></tr></thead>
+    <tbody>
+      <tr><td>PPD42 OUT</td><td class="n">4.0 V</td><td class="n">2.67 V</td><td class="n">7</td></tr>
+      <tr><td>HC-SR04 left ECHO</td><td class="n">5.0 V</td><td class="n">3.33 V</td><td class="n">31</td></tr>
+      <tr><td>HC-SR04 right ECHO</td><td class="n">5.0 V</td><td class="n">3.33 V</td><td class="n">33</td></tr>
+      <tr><td>TRIG &times; 2</td><td class="n">3.3 V out</td><td class="n">direct</td><td class="n">29, 32</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note">
+    <p>2.67&nbsp;V clears the Jetson's ~2.3&nbsp;V logic-high threshold, so one divider value serves both sensors. TRIG is an <em>input</em> to the HC-SR04 and fires reliably at 3.3&nbsp;V, so it needs no shifting.</p>
+    <p>A TXS0108E module works too, but its auto-direction circuitry is known to misread the HC-SR04 echo pulse. Four resistors are cheaper and more reliable here.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="n">05</span><h2>I²C bus</h2></div>
+  <p>Three devices, one bus, no address conflicts. All three run at 3.3&nbsp;V so no shifting is needed on SDA/SCL.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Device</th><th>Address</th><th>VCC</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>PCA9685</td><td class="n">0x40</td><td class="n">3.3 V</td><td>16-channel servo PWM</td></tr>
+      <tr><td>SGP30 (Grove)</td><td class="n">0x58</td><td class="n">3.3 V</td><td>TVOC + eCO₂</td></tr>
+      <tr><td>MPU6050</td><td class="n">0x68</td><td class="n">3.3 V</td><td>Accel + gyro, balance</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note">
+    <p>The SGP30 arrives on a Grove connector &mdash; use a Grove-to-female-jumper lead to reach the header. Run it at 3.3&nbsp;V, not 5&nbsp;V, so its I²C lines match the Jetson directly.</p>
+    <p>If the bus misbehaves, it is usually too many pull-ups in parallel: the Jetson has them on-board and so do both breakouts. Lifting the pull-up resistors on one breakout normally settles it.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="n">06</span><h2>Servo channel map</h2></div>
+  <p>Fix this convention now and keep it in the gait code. Each leg occupies three consecutive channels, ordered outward from the body.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Leg</th><th>Abduction</th><th>Hip pitch</th><th>Knee</th><th>Power bus</th></tr></thead>
+    <tbody>
+      <tr><td>Front left</td><td class="n">CH0</td><td class="n">CH1</td><td class="n">CH2</td><td class="n">A</td></tr>
+      <tr><td>Front right</td><td class="n">CH3</td><td class="n">CH4</td><td class="n">CH5</td><td class="n">A</td></tr>
+      <tr><td>Rear left</td><td class="n">CH6</td><td class="n">CH7</td><td class="n">CH8</td><td class="n">B</td></tr>
+      <tr><td>Rear right</td><td class="n">CH9</td><td class="n">CH10</td><td class="n">CH11</td><td class="n">B</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:.9rem;color:var(--muted)">Channels 12&ndash;15 stay free. Label every servo lead with its channel number before it disappears into the chassis &mdash; tracing twelve identical cables afterwards costs an evening.</p>
+</section>
+
+<section>
+  <div class="sechead"><span class="n">07</span><h2>Bring-up order</h2></div>
+  <p>Each step is a gate. Do not connect the next thing until the current one measures right.</p>
+
+  <ol class="steps">
+    <li><div><div class="t">Power chain alone, nothing plugged in</div><div class="d">Battery, fuse, switch, both UBECs. Meter the UBEC outputs for <strong>6.0&nbsp;V</strong> and the Jetson branch for <strong>11&ndash;12.6&nbsp;V</strong>. Adjust the UBECs now &mdash; a UBEC left at 12&nbsp;V destroys twelve servos in one second.</div></div></li>
+    <li><div><div class="t">Jetson alone on the pack</div><div class="d">Confirm it boots and stays up with no other load. Fit the 1000&nbsp;µF capacitor first.</div></div></li>
+    <li><div><div class="t">I²C scan</div><div class="d">Wire PCA9685, SGP30 and MPU6050, then run <code>sudo i2cdetect -y -r 7</code>. Expect <strong>0x40, 0x58, 0x68</strong>. Fix any missing device before going further.</div></div></li>
+    <li><div><div class="t">One servo, no horn</div><div class="d">Plug a single servo into CH0 with its V+ on bus A. Command 90&deg;. Confirm it holds and the UBEC stays at 6&nbsp;V.</div></div></li>
+    <li><div><div class="t">All twelve to 90&deg;, still no horns</div><div class="d">This is the step people skip. Every output shaft must sit at its centre position before any mechanical part touches it.</div></div></li>
+    <li><div><div class="t">Fit horns and legs at the centred position</div><div class="d">Assemble against the centred shafts so each joint's mechanical range straddles the servo's electrical range.</div></div></li>
+    <li><div><div class="t">Gait, robot on a stand</div><div class="d">Feet off the ground until the walk cycle looks right. A gait bug with the weight on is how legs break.</div></div></li>
+    <li><div><div class="t">Sensors last</div><div class="d">Dividers first, then PPD42 and both sonars. Verify each divider output with a meter before the wire reaches the header.</div></div></li>
+  </ol>
+</section>
+
+<section>
+  <div class="sechead"><span class="n">08</span><h2>Grounding</h2></div>
+  <ul class="tight">
+    <li><strong>One star point</strong> at the battery negative, downstream of the fuse and switch. Every ground returns there.</li>
+    <li><strong>Jetson GND must tie to the servo ground bus.</strong> Without a shared return, the PCA9685's PWM signals have no reference and servos twitch or ignore commands.</li>
+    <li>Both UBEC grounds, the PCA9685 GND, the servo bus GND, all sensor grounds, and each divider's lower resistor meet at that point.</li>
+    <li>Keep the 14&nbsp;AWG servo pair physically away from I²C and sensor wiring. Switching current next to an unshielded I²C pair is a common source of intermittent bus errors.</li>
+    <li>Use 14&nbsp;AWG for anything carrying servo current, 22&nbsp;AWG for signals.</li>
+  </ul>
+</section>
+
+</div>

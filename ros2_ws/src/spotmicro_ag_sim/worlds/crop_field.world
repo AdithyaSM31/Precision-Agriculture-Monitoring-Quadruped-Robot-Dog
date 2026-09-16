@@ -1,0 +1,458 @@
+<?xml version="1.0" ?>
+<!-- Self-contained crop field. The sun and ground plane are inline rather than
+     model:// includes: GAZEBO_MODEL_PATH is not always populated by sourcing the
+     ROS setup, and gzserver then stalls on the online model database. -->
+<sdf version="1.6">
+  <world name="crop_field">
+
+    <light type="directional" name="sun">
+      <cast_shadows>false</cast_shadows><pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.88 0.82 1</diffuse><specular>0.25 0.25 0.25 1</specular>
+      <attenuation><range>1000</range><constant>0.9</constant>
+        <linear>0.01</linear><quadratic>0.001</quadratic></attenuation>
+      <direction>-0.4 0.3 -0.9</direction>
+    </light>
+
+    <model name="ground_plane"><static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>200 200</size></plane></geometry>
+          <surface>
+            <friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction>
+            <contact><ode><kp>2e5</kp><kd>15</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>200 200</size></plane></geometry>
+          <material><ambient>0.30 0.26 0.20 1</ambient><diffuse>0.42 0.36 0.27 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="crop_0"><static>true</static>
+      <pose>-9.408 -1.240 0.085 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.038</radius><length>0.170</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_1"><static>true</static>
+      <pose>-8.232 -1.240 0.131 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.057</radius><length>0.263</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_2"><static>true</static>
+      <pose>-7.056 -1.240 0.128 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.054</radius><length>0.255</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_3"><static>true</static>
+      <pose>-5.880 -1.240 0.124 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.050</radius><length>0.247</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_4"><static>true</static>
+      <pose>-4.704 -1.240 0.120 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.047</radius><length>0.240</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_5"><static>true</static>
+      <pose>-3.528 -1.240 0.116 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.044</radius><length>0.233</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_6"><static>true</static>
+      <pose>-2.352 -1.240 0.113 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.040</radius><length>0.225</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_7"><static>true</static>
+      <pose>-1.176 -1.240 0.109 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.059</radius><length>0.218</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_8"><static>true</static>
+      <pose>0.000 -1.240 0.105 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.056</radius><length>0.210</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_9"><static>true</static>
+      <pose>1.176 -1.240 0.101 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.052</radius><length>0.203</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_10"><static>true</static>
+      <pose>2.352 -1.240 0.098 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.049</radius><length>0.195</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_11"><static>true</static>
+      <pose>3.528 -1.240 0.094 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.046</radius><length>0.188</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_12"><static>true</static>
+      <pose>4.704 -1.240 0.090 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.042</radius><length>0.180</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_13"><static>true</static>
+      <pose>5.880 -1.240 0.086 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.039</radius><length>0.173</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_14"><static>true</static>
+      <pose>7.056 -1.240 0.133 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.058</radius><length>0.265</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_15"><static>true</static>
+      <pose>8.232 -1.240 0.129 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.055</radius><length>0.258</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_16"><static>true</static>
+      <pose>9.408 -1.240 0.125 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.051</radius><length>0.250</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_17"><static>true</static>
+      <pose>-8.820 -0.620 0.121 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.048</radius><length>0.242</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_18"><static>true</static>
+      <pose>-7.644 -0.620 0.118 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.045</radius><length>0.235</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_19"><static>true</static>
+      <pose>-6.468 -0.620 0.114 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.041</radius><length>0.228</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_20"><static>true</static>
+      <pose>-5.292 -0.620 0.110 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.038</radius><length>0.220</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_21"><static>true</static>
+      <pose>-4.116 -0.620 0.106 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.057</radius><length>0.213</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_22"><static>true</static>
+      <pose>-2.940 -0.620 0.103 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.054</radius><length>0.205</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_23"><static>true</static>
+      <pose>-1.764 -0.620 0.099 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.050</radius><length>0.198</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_24"><static>true</static>
+      <pose>-0.588 -0.620 0.095 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.047</radius><length>0.190</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_25"><static>true</static>
+      <pose>0.588 -0.620 0.091 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.044</radius><length>0.183</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_26"><static>true</static>
+      <pose>1.764 -0.620 0.088 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.040</radius><length>0.175</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_27"><static>true</static>
+      <pose>2.940 -0.620 0.134 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.059</radius><length>0.268</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_28"><static>true</static>
+      <pose>4.116 -0.620 0.130 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.056</radius><length>0.260</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_29"><static>true</static>
+      <pose>5.292 -0.620 0.126 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.052</radius><length>0.253</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_30"><static>true</static>
+      <pose>6.468 -0.620 0.122 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.049</radius><length>0.245</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_31"><static>true</static>
+      <pose>7.644 -0.620 0.119 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.046</radius><length>0.238</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_32"><static>true</static>
+      <pose>8.820 -0.620 0.115 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.042</radius><length>0.230</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_33"><static>true</static>
+      <pose>9.996 -0.620 0.111 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.039</radius><length>0.223</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_34"><static>true</static>
+      <pose>-8.820 0.620 0.108 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.058</radius><length>0.215</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_35"><static>true</static>
+      <pose>-7.644 0.620 0.104 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.055</radius><length>0.208</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_36"><static>true</static>
+      <pose>-6.468 0.620 0.100 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.051</radius><length>0.200</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_37"><static>true</static>
+      <pose>-5.292 0.620 0.096 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.048</radius><length>0.193</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_38"><static>true</static>
+      <pose>-4.116 0.620 0.092 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.045</radius><length>0.185</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_39"><static>true</static>
+      <pose>-2.940 0.620 0.089 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.041</radius><length>0.178</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_40"><static>true</static>
+      <pose>-1.764 0.620 0.085 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.038</radius><length>0.170</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_41"><static>true</static>
+      <pose>-0.588 0.620 0.131 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.057</radius><length>0.263</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_42"><static>true</static>
+      <pose>0.588 0.620 0.128 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.054</radius><length>0.255</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_43"><static>true</static>
+      <pose>1.764 0.620 0.124 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.050</radius><length>0.247</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_44"><static>true</static>
+      <pose>2.940 0.620 0.120 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.047</radius><length>0.240</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_45"><static>true</static>
+      <pose>4.116 0.620 0.116 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.044</radius><length>0.233</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_46"><static>true</static>
+      <pose>5.292 0.620 0.113 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.040</radius><length>0.225</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_47"><static>true</static>
+      <pose>6.468 0.620 0.109 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.059</radius><length>0.218</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_48"><static>true</static>
+      <pose>7.644 0.620 0.105 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.056</radius><length>0.210</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_49"><static>true</static>
+      <pose>8.820 0.620 0.101 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.052</radius><length>0.203</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_50"><static>true</static>
+      <pose>9.996 0.620 0.098 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.049</radius><length>0.195</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_51"><static>true</static>
+      <pose>-9.408 1.240 0.094 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.046</radius><length>0.188</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_52"><static>true</static>
+      <pose>-8.232 1.240 0.090 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.042</radius><length>0.180</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_53"><static>true</static>
+      <pose>-7.056 1.240 0.086 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.039</radius><length>0.173</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_54"><static>true</static>
+      <pose>-5.880 1.240 0.133 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.058</radius><length>0.265</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_55"><static>true</static>
+      <pose>-4.704 1.240 0.129 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.055</radius><length>0.258</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_56"><static>true</static>
+      <pose>-3.528 1.240 0.125 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.051</radius><length>0.250</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_57"><static>true</static>
+      <pose>-2.352 1.240 0.121 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.048</radius><length>0.242</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_58"><static>true</static>
+      <pose>-1.176 1.240 0.118 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.045</radius><length>0.235</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_59"><static>true</static>
+      <pose>0.000 1.240 0.114 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.041</radius><length>0.228</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_60"><static>true</static>
+      <pose>1.176 1.240 0.110 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.038</radius><length>0.220</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_61"><static>true</static>
+      <pose>2.352 1.240 0.106 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.057</radius><length>0.213</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_62"><static>true</static>
+      <pose>3.528 1.240 0.103 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.054</radius><length>0.205</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_63"><static>true</static>
+      <pose>4.704 1.240 0.099 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.050</radius><length>0.198</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_64"><static>true</static>
+      <pose>5.880 1.240 0.095 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.047</radius><length>0.190</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_65"><static>true</static>
+      <pose>7.056 1.240 0.091 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.044</radius><length>0.183</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_66"><static>true</static>
+      <pose>8.232 1.240 0.088 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.040</radius><length>0.175</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+    <model name="crop_67"><static>true</static>
+      <pose>9.408 1.240 0.134 0 0 0</pose>
+      <link name="l"><visual name="v">
+        <geometry><cylinder><radius>0.059</radius><length>0.268</length></cylinder></geometry>
+        <material><ambient>0.18 0.34 0.16 1</ambient><diffuse>0.28 0.52 0.24 1</diffuse></material>
+      </visual></link></model>
+
+    <physics name="default" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <ode>
+        <solver><type>quick</type><iters>150</iters><sor>1.3</sor></solver>
+        <constraints><cfm>0.0</cfm><erp>0.2</erp>
+          <contact_max_correcting_vel>50</contact_max_correcting_vel>
+          <contact_surface_layer>0.001</contact_surface_layer></constraints>
+      </ode>
+    </physics>
+
+    <scene><ambient>0.55 0.55 0.55 1</ambient>
+      <background>0.55 0.68 0.82 1</background><shadows>false</shadows></scene>
+
+    <gui><camera name="user_camera">
+      <pose>-2.520 -0.8 0.55 0 0.22 0.65</pose></camera></gui>
+  </world>
+</sdf>
