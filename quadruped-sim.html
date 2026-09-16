@@ -1,0 +1,675 @@
+<title>Quadruped Gait Simulator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  --bg:#0E1116; --panel:#161B22; --panel2:#1C232C; --line:#262E38;
+  --ink:#E6EDF3; --muted:#8B949E; --faint:#606B7A;
+  --live:#4FD1C5; --load:#F0A04B; --crop:#5A9E5A; --warn:#E0705A; --ok:#5FBF7F;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);overflow:hidden}
+#app{position:relative;width:100%;height:100vh;min-height:640px;background:var(--bg)}
+canvas{display:block}
+
+.bar{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:20px;
+  padding:11px 18px;background:linear-gradient(180deg,rgba(14,17,22,.96),rgba(14,17,22,0));
+  pointer-events:none;flex-wrap:wrap}
+.bar h1{font-size:1rem;font-weight:600;margin:0;letter-spacing:-.01em;white-space:nowrap}
+.bar .sub{font-family:var(--mono);font-size:.66rem;color:var(--faint);letter-spacing:.1em;
+  text-transform:uppercase}
+.specs{display:flex;gap:15px;flex-wrap:wrap;font-family:var(--mono);font-size:.69rem;color:var(--muted)}
+.specs b{color:var(--live);font-weight:500}
+
+.panel{position:absolute;z-index:10;background:rgba(22,27,34,.94);border:1px solid var(--line);
+  border-radius:5px;backdrop-filter:blur(8px);padding:13px}
+#ctrl{left:16px;top:70px;width:228px;max-height:calc(100vh - 96px);overflow-y:auto}
+#hud{right:16px;top:70px;width:264px;max-height:calc(100vh - 96px);overflow-y:auto}
+
+.ph{font-family:var(--mono);font-size:.63rem;font-weight:600;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 9px}
+.ph+.ph{margin-top:16px}
+
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:13px}
+.seg button,.btn{font-family:var(--sans);font-size:.77rem;font-weight:500;padding:7px 4px;
+  background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:3px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--live);color:#0E1116;border-color:var(--live);font-weight:600}
+.btn{width:100%;margin-top:8px}
+.btn[aria-pressed="true"]{background:var(--warn);color:#0E1116;border-color:var(--warn);font-weight:600}
+button:focus-visible,input:focus-visible{outline:2px solid var(--live);outline-offset:2px}
+
+.sl{margin-bottom:10px}
+.sl label{display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted);margin-bottom:4px}
+.sl label b{font-family:var(--mono);color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;height:3px;-webkit-appearance:none;appearance:none;background:var(--line);
+  border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+  background:var(--live);cursor:pointer;border:none}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--live);
+  cursor:pointer;border:none}
+
+/* stability headline */
+.stab{border:1px solid var(--line);border-radius:4px;padding:11px 12px;background:var(--panel2)}
+.stab .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.pill{font-family:var(--mono);font-size:.66rem;font-weight:600;letter-spacing:.09em;padding:3px 9px;
+  border-radius:2px;background:var(--ok);color:#0E1116}
+.pill.bad{background:var(--warn)}
+.pill.fall{background:var(--warn);animation:none}
+.stab .kv{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.72rem;
+  font-variant-numeric:tabular-nums;line-height:1.75}
+.stab .kv span{color:var(--faint)}
+.stab .kv b{font-weight:500;color:var(--ink)}
+.stab .kv b.warn{color:var(--warn)}
+
+/* torque bars */
+.tq{margin-top:5px}
+.tq .lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.68rem;
+  color:var(--faint);font-variant-numeric:tabular-nums;margin-bottom:3px}
+.tq .lab b{color:var(--ink);font-weight:500}
+.track{position:relative;height:5px;background:var(--line);border-radius:3px;overflow:hidden}
+.fill{position:absolute;left:0;top:0;bottom:0;background:var(--live);border-radius:3px}
+.fill.hot{background:var(--load)}
+.fill.over{background:var(--warn)}
+.limit{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--faint)}
+
+.legs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.leg{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:7px 8px}
+.leg .nm{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  font-size:.62rem;color:var(--faint);letter-spacing:.07em;margin-bottom:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--faint);display:block}
+.dot.st{background:var(--load)}
+.jr{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.68rem;
+  font-variant-numeric:tabular-nums;line-height:1.6}
+.jr span{color:var(--faint)}
+.jr b{color:var(--live);font-weight:500}
+
+.tel{display:flex;flex-direction:column;gap:5px}
+.tr{display:flex;justify-content:space-between;align-items:baseline;padding:6px 9px;
+  background:var(--panel2);border-left:2px solid var(--crop);border-radius:0 3px 3px 0}
+.tr .k{font-size:.71rem;color:var(--muted)}
+.tr .v{font-family:var(--mono);font-size:.79rem;font-weight:500;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.tr .v u{text-decoration:none;color:var(--faint);font-size:.66rem;margin-left:3px}
+.simnote{font-size:.64rem;color:var(--faint);line-height:1.5;margin:8px 0 0}
+.hint{position:absolute;left:16px;bottom:14px;z-index:10;font-family:var(--mono);font-size:.65rem;
+  color:var(--faint);background:rgba(22,27,34,.9);border:1px solid var(--line);border-radius:4px;padding:7px 11px}
+.hint b{color:var(--muted);font-weight:500}
+#fallback{position:absolute;inset:0;display:none;place-items:center;padding:40px;text-align:center;
+  color:var(--muted);font-size:.9rem}
+@media (max-width:980px){
+  #ctrl,#hud{position:static;width:auto;max-height:none}
+  .stack{position:absolute;left:10px;right:10px;bottom:10px;z-index:10;display:flex;flex-direction:column;
+    gap:9px;max-height:52vh;overflow-y:auto}
+  .hint{display:none}
+}
+</style>
+
+<div id="app">
+  <div class="bar">
+    <div><div class="sub">Precision Agriculture Quadruped</div><h1>Gait Simulator</h1></div>
+    <div class="specs">
+      <span>mass <b>1.76</b> kg</span>
+      <span>hip span <b>140 &times; 78</b> mm</span>
+      <span>femur <b>111</b></span>
+      <span>tibia <b>125</b> mm</span>
+      <span>servo <b>MG996R</b></span>
+    </div>
+  </div>
+
+  <div class="stack">
+  <div class="panel" id="ctrl">
+    <p class="ph">Gait</p>
+    <div class="seg" id="gaits">
+      <button data-g="crawl" aria-pressed="true">Crawl</button>
+      <button data-g="trot" aria-pressed="false">Trot</button>
+      <button data-g="stand" aria-pressed="false">Stand</button>
+      <button data-g="pose" aria-pressed="false">Body pose</button>
+    </div>
+
+    <p class="ph">Motion</p>
+    <div class="sl"><label>Speed <b id="v-speed">1.00&times;</b></label>
+      <input type="range" id="s-speed" min="0" max="2" step="0.05" value="1"></div>
+    <div class="sl"><label>Stride <b id="v-stride">60 mm</b></label>
+      <input type="range" id="s-stride" min="0" max="110" step="2" value="60"></div>
+    <div class="sl"><label>Step height <b id="v-lift">35 mm</b></label>
+      <input type="range" id="s-lift" min="5" max="70" step="1" value="35"></div>
+    <div class="sl"><label>CoM tracking <b id="v-sway">0 %</b></label>
+      <input type="range" id="s-sway" min="0" max="100" step="5" value="0"></div>
+
+    <p class="ph">Body</p>
+    <div class="sl"><label>Ride height <b id="v-h">150 mm</b></label>
+      <input type="range" id="s-h" min="95" max="205" step="1" value="150"></div>
+    <div class="sl"><label>Pitch <b id="v-pit">0&deg;</b></label>
+      <input type="range" id="s-pit" min="-18" max="18" step="1" value="0"></div>
+    <div class="sl"><label>Roll <b id="v-rol">0&deg;</b></label>
+      <input type="range" id="s-rol" min="-18" max="18" step="1" value="0"></div>
+    <div class="sl"><label>Yaw <b id="v-yaw">0&deg;</b></label>
+      <input type="range" id="s-yaw" min="-20" max="20" step="1" value="0"></div>
+
+    <p class="ph">Physics</p>
+    <div class="sl"><label>Servo torque limit <b id="v-tq">11.0 kg&middot;cm</b></label>
+      <input type="range" id="s-tq" min="5" max="22" step="0.5" value="11"></div>
+    <button class="btn" id="b-fall" aria-pressed="false">Let it fall: OFF</button>
+    <button class="btn" id="b-reset">Reset pose</button>
+  </div>
+
+  <div class="panel" id="hud">
+    <p class="ph">Static stability</p>
+    <div class="stab">
+      <div class="row"><span class="pill" id="p-stat">STABLE</span>
+        <span style="font-family:var(--mono);font-size:.68rem;color:var(--faint)" id="p-feet">4 feet down</span></div>
+      <div class="kv"><span>stability margin</span><b id="p-marg">—</b></div>
+      <div class="kv"><span>CoM offset</span><b id="p-com">—</b></div>
+      <div class="kv"><span>peak foot load</span><b id="p-load">—</b></div>
+      <div class="kv"><span>ground speed</span><b id="p-spd">—</b></div>
+      <div class="kv"><span>distance</span><b id="p-dist">—</b></div>
+    </div>
+
+    <p class="ph">Peak joint torque</p>
+    <div class="tq">
+      <div class="lab"><span>knee &mdash; worst leg</span><b id="p-kt">—</b></div>
+      <div class="track"><div class="fill" id="f-kt"></div><div class="limit" id="l-kt"></div></div>
+    </div>
+    <div class="tq">
+      <div class="lab"><span>hip &mdash; worst leg</span><b id="p-ht">—</b></div>
+      <div class="track"><div class="fill" id="f-ht"></div><div class="limit" id="l-ht"></div></div>
+    </div>
+
+    <p class="ph">Per leg &mdash; angle / knee torque</p>
+    <div class="legs" id="legs"></div>
+
+    <p class="ph">Sensor telemetry</p>
+    <div class="tel">
+      <div class="tr"><span class="k">TVOC &mdash; SGP30</span><span class="v" id="t-voc">—<u>ppb</u></span></div>
+      <div class="tr"><span class="k">eCO&#8322; &mdash; SGP30</span><span class="v" id="t-co2">—<u>ppm</u></span></div>
+      <div class="tr"><span class="k">Particles &mdash; PPD42</span><span class="v" id="t-pm">—<u>pcs/L</u></span></div>
+      <div class="tr"><span class="k">Servo rail</span><span class="v" id="t-a">—<u>A</u></span></div>
+    </div>
+    <p class="simnote"><b>Quasi-static analysis.</b> Masses and link lengths are the real build; torques come from
+      solved foot loads. Sensor values are <strong>simulated placeholders</strong>, not measurements.</p>
+  </div>
+  </div>
+
+  <div class="hint"><b>drag</b> orbit &nbsp;·&nbsp; <b>scroll</b> zoom &nbsp;·&nbsp; <b>right-drag</b> pan</div>
+  <div id="fallback">3D view could not start. WebGL may be unavailable in this browser.</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+if(!window.THREE){document.getElementById('fallback').style.display='grid';return;}
+
+/* ===== measured geometry (mm) ===== */
+const HIP_L=140, HIP_W=78, L0=60, L1=111, L2=125,
+      BODY_L=180, BODY_W=114, BODY_H=74;
+/* ===== mass model (kg) — from measured print volumes + real component weights ===== */
+const M_BODY=1.1293, M_FEMUR=0.1335, M_TIBIA=0.0236;
+const M_TOTAL=M_BODY+4*(M_FEMUR+M_TIBIA);            // 1.7577 kg
+
+const LEGS=[{id:'FL',sx:+1,sz:-1},{id:'FR',sx:+1,sz:+1},
+            {id:'RL',sx:-1,sz:-1},{id:'RR',sx:-1,sz:+1}];
+
+/* ===== scene ===== */
+const app=document.getElementById('app');
+let W=app.clientWidth,H=app.clientHeight;
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(W,H); renderer.setClearColor(0x0E1116,1);
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+app.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.Fog(0x0E1116,1700,4300);
+const camera=new THREE.PerspectiveCamera(42,W/H,1,6000);
+scene.add(new THREE.HemisphereLight(0x9FB4CC,0x0E1116,0.55));
+const key=new THREE.DirectionalLight(0xFFF3E0,1.05);
+key.position.set(320,520,260); key.castShadow=true; key.shadow.mapSize.set(2048,2048);
+const dd=560; key.shadow.camera.left=-dd; key.shadow.camera.right=dd;
+key.shadow.camera.top=dd; key.shadow.camera.bottom=-dd;
+key.shadow.camera.near=100; key.shadow.camera.far=1600; key.shadow.bias=-0.0012;
+scene.add(key);
+const rim=new THREE.DirectionalLight(0x4FD1C5,0.34); rim.position.set(-300,180,-340); scene.add(rim);
+
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(4200,4200),
+  new THREE.MeshStandardMaterial({color:0x161B22,roughness:.97}));
+ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+const grid=new THREE.GridHelper(4200,42,0x2B3540,0x1B222B); grid.position.y=.4; scene.add(grid);
+
+const crops=new THREE.InstancedMesh(new THREE.ConeGeometry(13,54,6),
+  new THREE.MeshStandardMaterial({color:0x5A9E5A,roughness:.9}),260);
+crops.castShadow=true;
+(function(){const d=new THREE.Object3D();let i=0;
+ for(let row=-3;row<=3;row++){ if(!row) continue;
+   for(let k=-18;k<=18;k++){ if(i>=260) break;
+     d.position.set(k*60+(row%2?18:0),27,row*300); d.rotation.y=(i*1.7)%Math.PI;
+     const s=.75+((i*37)%40)/100; d.scale.set(s,s,s); d.updateMatrix(); crops.setMatrixAt(i++,d.matrix);}}
+ crops.count=i;})();
+scene.add(crops);
+
+/* ===== materials & robot ===== */
+const MT={
+  shell:new THREE.MeshStandardMaterial({color:0xD9DEE4,roughness:.62,metalness:.05}),
+  deck :new THREE.MeshStandardMaterial({color:0x3778C2,roughness:.5,metalness:.15}),
+  jet  :new THREE.MeshStandardMaterial({color:0x23282F,roughness:.45,metalness:.35}),
+  servo:new THREE.MeshStandardMaterial({color:0x2A2F36,roughness:.5,metalness:.25}),
+  limb :new THREE.MeshStandardMaterial({color:0xB9C0C8,roughness:.58,metalness:.08}),
+  shank:new THREE.MeshStandardMaterial({color:0x3A424C,roughness:.55,metalness:.2}),
+  foot :new THREE.MeshStandardMaterial({color:0xF0A04B,roughness:.85})
+};
+function box(w,h,d,m){const x=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);x.castShadow=true;return x;}
+
+const rig=new THREE.Group(); scene.add(rig);          // world travel
+const robot=new THREE.Group(); rig.add(robot);        // tipping
+const bodyG=new THREE.Group(); robot.add(bodyG);      // ride height + pose
+bodyG.add(box(BODY_L,BODY_H,BODY_W,MT.shell));
+const deck=box(BODY_L,5,100,MT.deck); deck.position.y=BODY_H/2+2.5; bodyG.add(deck);
+const jetBox=box(103,34,90,MT.jet); jetBox.position.y=BODY_H/2+23; bodyG.add(jetBox);
+const BRK=new THREE.MeshStandardMaterial({color:0x8E97A2,roughness:.66,metalness:.05});
+function put(m,x0,x1,y0,y1,z0,z1,mat){
+  const b=box(x1-x0,y1-y0,z1-z0,mat||BRK);
+  b.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2); bodyG.add(b); return b;}
+/* PPD42 bracket: base + two cradle walls + back stop (STL X34..66, Y128..160, Z12..102) */
+put(-86,-54, 42,46, -45,45);                    // base plate
+put(-84,-81, 42,74, -29,35);                    // left cradle wall
+put(-58,-55, 42,74, -29,35);                    // right cradle wall
+put(-84,-55, 42,74, -29,-26);                   // back stop
+const ppdSensor=put(-81,-59, 46,91, -26,33, MT.jet);   // the sensor, standing upright
+/* SGP30 bracket: base + 4 posts + raised platform (STL X174..208, Y128..153) */
+put(54,88, 42,46, -45,45);                      // base plate
+[[60,-17],[82,-17],[60,19],[82,19]].forEach(([px,pz])=>put(px-4,px+4,42,64,pz-4,pz+4));
+put(56,86, 64,67, -27,29);                      // platform
+put(61,81, 67,68.6, -19,21, MT.deck);           // Grove SGP30 board
+[-1,1].forEach(s=>{const u=new THREE.Mesh(new THREE.CylinderGeometry(8,8,6,16),MT.servo);
+  u.rotation.z=Math.PI/2; u.position.set(BODY_L/2+2,6,s*22); bodyG.add(u);});
+
+const FR=13;
+const legs=LEGS.map(c=>{
+  const root=new THREE.Group(); root.position.set(c.sx*HIP_L/2,0,c.sz*HIP_W/2); bodyG.add(root);
+  const abd=new THREE.Group(); root.add(abd);
+  const s1=box(40,20,40,MT.servo); s1.position.z=c.sz*14; abd.add(s1);
+  const hip=new THREE.Group(); hip.position.z=c.sz*L0; abd.add(hip);
+  const s2=box(40,40,20,MT.servo); s2.position.z=c.sz*-16; hip.add(s2);
+  const femur=new THREE.Group(); hip.add(femur);
+  const fb=box(26,L1,15,MT.limb); fb.position.y=-L1/2; femur.add(fb);
+  const s3=box(40,40,20,MT.servo); s3.position.set(0,-L1,c.sz*-15); femur.add(s3);
+  const tibia=new THREE.Group(); tibia.position.y=-L1; femur.add(tibia);
+  const tb=box(17,L2-FR,11,MT.shank); tb.position.y=-(L2-FR)/2; tibia.add(tb);
+  const ft=new THREE.Mesh(new THREE.SphereGeometry(FR,18,14),MT.foot);
+  ft.position.y=-(L2-FR); ft.castShadow=true; tibia.add(ft);
+  const contact=new THREE.Object3D(); contact.position.y=-L2; tibia.add(contact);
+  return {cfg:c,root,abd,hip,femur,tibia,contact,ang:[0,0,0],stance:true,load:0,tq:[0,0,0]};
+});
+
+/* ===== physics overlays ===== */
+const comBall=new THREE.Mesh(new THREE.SphereGeometry(11,20,16),
+  new THREE.MeshBasicMaterial({color:0x4FD1C5})); scene.add(comBall);
+const comDrop=new THREE.Line(new THREE.BufferGeometry().setFromPoints(
+  [new THREE.Vector3(),new THREE.Vector3()]),
+  new THREE.LineDashedMaterial({color:0x4FD1C5,dashSize:12,gapSize:9})); scene.add(comDrop);
+const comMark=new THREE.Mesh(new THREE.RingGeometry(9,13,24),
+  new THREE.MeshBasicMaterial({color:0x4FD1C5,side:THREE.DoubleSide}));
+comMark.rotation.x=-Math.PI/2; comMark.position.y=1.5; scene.add(comMark);
+
+const polyMat=new THREE.MeshBasicMaterial({color:0x5FBF7F,transparent:true,opacity:.17,
+  side:THREE.DoubleSide});
+const polyMesh=new THREE.Mesh(new THREE.BufferGeometry(),polyMat);
+polyMesh.position.y=1.0; scene.add(polyMesh);
+const polyEdge=new THREE.LineLoop(new THREE.BufferGeometry(),
+  new THREE.LineBasicMaterial({color:0x5FBF7F})); polyEdge.position.y=1.2; scene.add(polyEdge);
+
+/* ===== IK (verified: knee-back branch puts the foot on target) ===== */
+function solveIK(tx,ty,tz,sz){
+  const z=tz*sz, R=Math.hypot(ty,z);
+  if(R<L0+1e-3) return null;
+  const phi=Math.atan2(ty,z);
+  const a1=-Math.acos(Math.max(-1,Math.min(1,L0/R)))-phi;
+  const yp=ty*Math.cos(a1)+z*Math.sin(a1);
+  const G=Math.hypot(tx,yp);
+  const Gc=Math.max(Math.abs(L1-L2)+1,Math.min(L1+L2-1,G));
+  const gam=Math.acos(Math.max(-1,Math.min(1,(L1*L1+L2*L2-Gc*Gc)/(2*L1*L2))));
+  const knee=Math.PI-gam;
+  const beta=Math.acos(Math.max(-1,Math.min(1,(L1*L1+Gc*Gc-L2*L2)/(2*L1*Gc))));
+  return [a1*sz, Math.atan2(tx,-yp)+beta, knee];
+}
+
+/* ===== gait ===== */
+const GAITS={crawl:{duty:.80,off:[0,.5,.25,.75],hz:.55},
+             trot :{duty:.52,off:[0,.5,.5,0],  hz:1.30},
+             stand:{duty:1,off:[0,0,0,0],hz:0}, pose:{duty:1,off:[0,0,0,0],hz:0}};
+let gait='crawl',phase=0;
+const P={speed:1,stride:60,lift:35,sway:0,h:150,pitch:0,roll:0,yaw:0,tq:11};
+let letFall=false, tip=0, tipVel=0, tipAxis=new THREE.Vector3(1,0,0), tipPivot=new THREE.Vector3();
+
+function footOffset(p,g){
+  if(!g.hz) return {x:0,y:0,st:true};
+  if(p<g.duty){const u=p/g.duty; return {x:P.stride/2-P.stride*u,y:0,st:true};}
+  const u=(p-g.duty)/(1-g.duty);
+  return {x:-P.stride/2+P.stride*u,y:P.lift*Math.sin(Math.PI*u),st:false};
+}
+
+/* ===== helpers ===== */
+function hull2(pts){                       // convex hull, CCW, small N
+  if(pts.length<3) return pts.slice();
+  const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length, cz=pts.reduce((s,p)=>s+p.z,0)/pts.length;
+  return pts.slice().sort((a,b)=>Math.atan2(a.z-cz,a.x-cx)-Math.atan2(b.z-cz,b.x-cx));
+}
+function marginOf(poly,px,pz){             // signed: + inside, value = distance to nearest edge
+  if(poly.length<3) return -999;
+  let minSigned=Infinity;                      // + inside, - outside; CCW winding
+  for(let i=0;i<poly.length;i++){
+    const a=poly[i], b=poly[(i+1)%poly.length];
+    const ex=b.x-a.x, ez=b.z-a.z, len=Math.hypot(ex,ez)||1;
+    minSigned=Math.min(minSigned,(ex*(pz-a.z)-ez*(px-a.x))/len);
+  }
+  return minSigned;
+}
+function inv3(m){                          // 3x3 inverse, row-major array of 9
+  const [a,b,c,d,e,f,g,h,i]=m;
+  const A=e*i-f*h, B=-(d*i-f*g), C=d*h-e*g;
+  const det=a*A+b*B+c*C; if(Math.abs(det)<1e-9) return null;
+  const s=1/det;
+  return [A*s,(c*h-b*i)*s,(b*f-c*e)*s, B*s,(a*i-c*g)*s,(c*d-a*f)*s, C*s,(b*g-a*h)*s,(a*e-b*d)*s];
+}
+/* minimum-norm vertical foot loads satisfying force + 2 moment balances */
+function solveLoads(feet,cx,cz,Wt){
+  const n=feet.length; if(!n) return [];
+  if(n===1) return [Wt];
+  const Sx=feet.reduce((s,f)=>s+f.x,0), Sz=feet.reduce((s,f)=>s+f.z,0);
+  const Sxx=feet.reduce((s,f)=>s+f.x*f.x,0), Szz=feet.reduce((s,f)=>s+f.z*f.z,0),
+        Sxz=feet.reduce((s,f)=>s+f.x*f.z,0);
+  const AAT=[n,Sx,Sz, Sx,Sxx,Sxz, Sz,Sxz,Szz];
+  const Iv=inv3(AAT);
+  if(!Iv) return feet.map(()=>Wt/n);
+  const b=[Wt,Wt*cx,Wt*cz];
+  const y=[Iv[0]*b[0]+Iv[1]*b[1]+Iv[2]*b[2],
+           Iv[3]*b[0]+Iv[4]*b[1]+Iv[5]*b[2],
+           Iv[6]*b[0]+Iv[7]*b[1]+Iv[8]*b[2]];
+  let f=feet.map(ft=>y[0]+y[1]*ft.x+y[2]*ft.z);
+  if(f.some(v=>v<0)){                      // drop tension contacts, redistribute
+    const keep=feet.filter((_,i)=>f[i]>0);
+    if(keep.length>=1 && keep.length<n){
+      const sub=solveLoads(keep,cx,cz,Wt); let k=0;
+      f=feet.map((_,i)=>f[i]>0?sub[k++]:0);
+    } else f=f.map(v=>Math.max(0,v));
+  }
+  return f;
+}
+
+/* ===== per-frame ===== */
+const _m=new THREE.Matrix4(),_q=new THREE.Quaternion(),_e=new THREE.Euler(),
+      _v=new THREE.Vector3(),_a=new THREE.Vector3(),_r=new THREE.Vector3(),
+      _c=new THREE.Vector3(),_f=new THREE.Vector3();
+const PH={com:new THREE.Vector3(),poly:[],margin:0,loads:[0,0,0,0],peakK:0,peakH:0,
+          stable:true,down:4,fallen:false};
+let swayX=0,swayZ=0,travel=0,gndSpeed=0;
+
+function kinematics(dt){
+  const g=GAITS[gait];
+  phase=(phase+dt*g.hz*P.speed)%1;
+
+  /* Forward travel. A stance foot is planted, so relative to the body it sweeps
+     back by `stride` over the stance fraction `duty` of one cycle. For that foot
+     to stay still on the ground the body must advance at stride*hz/duty. */
+  gndSpeed = g.hz ? P.stride*g.hz*P.speed/g.duty : 0;
+  travel += gndSpeed*dt;
+  rig.position.x = travel;
+  // the crop field is periodic at 60 mm and the grid at 100 mm, so shifting by
+  // whole periods keeps the robot walking through an endless field, seamlessly
+  crops.position.x = Math.round(travel/60)*60;
+  grid.position.x  = Math.round(travel/100)*100;
+
+  // CoM tracking: ease the body toward the centroid of the supporting feet
+  let tgtX=0,tgtZ=0;
+  if(P.sway>0 && g.hz>0){
+    let sx=0,sz=0,k=0;
+    legs.forEach((l,i)=>{const p=(phase+g.off[i])%1;
+      if(footOffset(p,g).st){sx+=l.cfg.sx*HIP_L/2; sz+=l.cfg.sz*(HIP_W/2+L0); k++;}});
+    if(k){tgtX=(sx/k)*(P.sway/100); tgtZ=(sz/k)*(P.sway/100);}
+  }
+  swayX+=(tgtX-swayX)*Math.min(1,dt*6); swayZ+=(tgtZ-swayZ)*Math.min(1,dt*6);
+
+  _e.set(P.roll*Math.PI/180,P.yaw*Math.PI/180,P.pitch*Math.PI/180,'YZX');
+  _q.setFromEuler(_e);
+  bodyG.quaternion.copy(_q);
+  bodyG.position.set(swayX,P.h,swayZ);
+  _m.compose(bodyG.position,_q,_v.set(1,1,1)); _m.invert();
+
+  legs.forEach((leg,i)=>{
+    const p=(phase+g.off[i])%1, fo=footOffset(p,g);
+    leg.stance=fo.st;
+    _v.set(leg.cfg.sx*HIP_L/2+fo.x, fo.y, leg.cfg.sz*(HIP_W/2+L0)).applyMatrix4(_m);
+    const sol=solveIK(_v.x-leg.cfg.sx*HIP_L/2, _v.y, _v.z-leg.cfg.sz*HIP_W/2, leg.cfg.sz);
+    if(!sol) return;
+    leg.ang=sol;
+    leg.abd.rotation.x=sol[0];
+    leg.femur.rotation.z=-sol[1];
+    leg.tibia.rotation.z=sol[2];
+  });
+}
+
+function physics(){
+  bodyG.updateWorldMatrix(true,true);
+
+  // --- centre of mass from actual link poses ---
+  _c.set(0,0,0);
+  _v.set(0,14,0); bodyG.localToWorld(_v);             // body CoM sits a little above centre (Jetson on top)
+  _c.addScaledVector(_v,M_BODY);
+  legs.forEach(l=>{
+    _v.set(0,-L1/2,0); l.femur.localToWorld(_v); _c.addScaledVector(_v,M_FEMUR);
+    _v.set(0,-L2/2,0); l.tibia.localToWorld(_v); _c.addScaledVector(_v,M_TIBIA);
+  });
+  _c.multiplyScalar(1/M_TOTAL);
+  PH.com.copy(_c);
+
+  // --- support polygon from grounded feet ---
+  const down=[];
+  legs.forEach((l,i)=>{ l.contact.getWorldPosition(_v);
+    if(l.stance) down.push({x:_v.x,z:_v.z,i}); });
+  PH.down=down.length;
+  PH.poly=hull2(down);
+  PH.margin=marginOf(PH.poly,_c.x,_c.z);
+  PH.stable=PH.margin>0;
+
+  // --- vertical load per foot (kgf) ---
+  const f=solveLoads(down,_c.x,_c.z,M_TOTAL);
+  legs.forEach(l=>l.load=0);
+  down.forEach((d,k)=>{legs[d.i].load=f[k];});
+  PH.loads=legs.map(l=>l.load);
+
+  // --- joint torques: tau = |(r x F) . axis|, in kg-cm ---
+  PH.peakK=0; PH.peakH=0;
+  legs.forEach(l=>{
+    if(l.load<=0){l.tq=[0,0,0]; return;}
+    l.contact.getWorldPosition(_f);
+    _f.multiplyScalar(0.1);                              // mm -> cm
+    const F=_v.set(0,-l.load,0);                         // kgf, downward
+    const t=[];
+    [[l.root,new THREE.Vector3(1,0,0),l.abd],
+     [l.hip ,new THREE.Vector3(0,0,1),l.femur],
+     [l.femur,new THREE.Vector3(0,0,1),l.tibia]].forEach(([frame,ax,joint])=>{
+      joint.getWorldPosition(_r); _r.multiplyScalar(0.1);
+      _a.copy(ax).applyQuaternion(frame.getWorldQuaternion(_q)).normalize();
+      _r.subVectors(_f,_r);                              // r = foot - joint  (cm)
+      t.push(Math.abs(_r.clone().cross(F).dot(_a)));
+    });
+    l.tq=t;
+    PH.peakH=Math.max(PH.peakH,t[1]);
+    PH.peakK=Math.max(PH.peakK,t[2]);
+  });
+
+  // --- overlays ---
+  comBall.position.copy(_c);
+  comMark.position.set(_c.x,1.5,_c.z);
+  comDrop.geometry.setFromPoints([_c.clone(),new THREE.Vector3(_c.x,1,_c.z)]);
+  comDrop.computeLineDistances();
+  const col=PH.stable?0x5FBF7F:0xE0705A;
+  polyMat.color.setHex(col); polyEdge.material.color.setHex(col);
+  if(PH.poly.length>=3){
+    const pts=PH.poly.map(p=>new THREE.Vector3(p.x,0,p.z));
+    polyEdge.geometry.setFromPoints(pts); polyEdge.visible=true;
+    const tri=[];
+    for(let i=1;i<pts.length-1;i++) tri.push(pts[0],pts[i],pts[i+1]);
+    polyMesh.geometry.setFromPoints(tri); polyMesh.visible=true;
+  } else {polyEdge.visible=false; polyMesh.visible=false;}
+}
+
+/* --- tipping: real rigid-body rotation about the violated support edge --- */
+function tipping(dt){
+  if(!letFall){ if(tip!==0){tip=0;tipVel=0; robot.position.set(0,0,0); robot.quaternion.identity();} return; }
+  if(PH.fallen) return;
+  if(PH.margin<0 && PH.poly.length>=2){
+    // nearest edge = the one the CoM has crossed
+    let worst=Infinity,ea=null,eb=null;
+    for(let i=0;i<PH.poly.length;i++){
+      const a=PH.poly[i],b=PH.poly[(i+1)%PH.poly.length];
+      const ex=b.x-a.x,ez=b.z-a.z,len=Math.hypot(ex,ez)||1;
+      const s=(ex*(PH.com.z-a.z)-ez*(PH.com.x-a.x))/len;
+      if(s<worst){worst=s;ea=a;eb=b;}
+    }
+    if(ea){
+      tipAxis.set(eb.x-ea.x,0,eb.z-ea.z).normalize();
+      tipPivot.set(ea.x-travel,0,ea.z);
+      const d=Math.abs(worst)/1000;                     // m outside the edge
+      const I=M_TOTAL*0.0225;                           // kg.m^2 about the edge (r~0.15 m)
+      tipVel+=(M_TOTAL*9.81*d/I)*dt;
+    }
+  } else tipVel*=0.9;
+  if(tipVel>0){
+    tip+=tipVel*dt;
+    if(tip>1.15){PH.fallen=true;}
+    const m=new THREE.Matrix4()
+      .makeTranslation(tipPivot.x,0,tipPivot.z)
+      .multiply(new THREE.Matrix4().makeRotationAxis(tipAxis,-tip))
+      .multiply(new THREE.Matrix4().makeTranslation(-tipPivot.x,0,-tipPivot.z));
+    const pos=new THREE.Vector3(),qt=new THREE.Quaternion(),sc=new THREE.Vector3();
+    m.decompose(pos,qt,sc); robot.position.copy(pos); robot.quaternion.copy(qt);
+  }
+}
+
+/* ===== camera ===== */
+const cam={az:-0.72,el:0.34,r:800,tx:0,ty:120,tz:0};
+function fitDist(){const R=250,t=Math.tan(camera.fov*Math.PI/360),asp=Math.max(.25,W/H);
+  return Math.min(1150,Math.max(460,Math.max(R/t,R/(t*asp))*1.25));}
+function place(){const ce=Math.cos(cam.el), fx=cam.tx+travel;
+  camera.position.set(fx+cam.r*ce*Math.sin(cam.az),cam.ty+cam.r*Math.sin(cam.el),
+                      cam.tz+cam.r*ce*Math.cos(cam.az));
+  camera.lookAt(fx,cam.ty,cam.tz);}
+cam.r=fitDist(); place();
+let drag=null,lx=0,ly=0; const cv=renderer.domElement; cv.style.touchAction='none';
+cv.addEventListener('pointerdown',e=>{drag=e.button===2?'pan':'orb';lx=e.clientX;ly=e.clientY;
+  cv.setPointerCapture(e.pointerId);});
+cv.addEventListener('pointermove',e=>{ if(!drag) return;
+  const dx=e.clientX-lx,dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
+  if(drag==='orb'){cam.az-=dx*.006; cam.el=Math.max(-.25,Math.min(1.35,cam.el+dy*.005));}
+  else{const s=cam.r*.0016; cam.tx-=Math.cos(cam.az)*dx*s; cam.tz+=Math.sin(cam.az)*dx*s;
+       cam.ty=Math.max(0,cam.ty+dy*s);} place();});
+addEventListener('pointerup',()=>{drag=null;});
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('wheel',e=>{e.preventDefault();
+  cam.r=Math.max(260,Math.min(2100,cam.r*(1+Math.sign(e.deltaY)*.09))); place();},{passive:false});
+
+/* ===== HUD ===== */
+const NM={FL:'FRONT L',FR:'FRONT R',RL:'REAR L',RR:'REAR R'};
+const legBox=document.getElementById('legs');
+const cells=legs.map(l=>{const d=document.createElement('div'); d.className='leg';
+  d.innerHTML='<div class="nm"><span>'+NM[l.cfg.id]+'</span><i class="dot"></i></div>'+
+    '<div class="jr"><span>abd</span><b>0&deg;</b></div>'+
+    '<div class="jr"><span>hip</span><b>0&deg;</b></div>'+
+    '<div class="jr"><span>knee</span><b>0&deg;</b></div>'+
+    '<div class="tq" style="margin-top:6px"><div class="lab"><span>&tau;k</span><b>0.0</b></div>'+
+    '<div class="track"><div class="fill"></div></div></div>';
+  legBox.appendChild(d);
+  return {dot:d.querySelector('.dot'),v:d.querySelectorAll('.jr b'),
+          tv:d.querySelector('.tq b'),tf:d.querySelector('.tq .fill')};});
+
+const E=id=>document.getElementById(id);
+const U={stat:E('p-stat'),feet:E('p-feet'),marg:E('p-marg'),com:E('p-com'),load:E('p-load'),
+         kt:E('p-kt'),ht:E('p-ht'),fkt:E('f-kt'),fht:E('f-ht'),lkt:E('l-kt'),lht:E('l-ht'),
+         spd:E('p-spd'),dist:E('p-dist'),voc:E('t-voc'),co2:E('t-co2'),pm:E('t-pm'),amp:E('t-a')};
+
+function bar(fill,val,lim){
+  const pct=Math.min(100,val/(lim*1.6)*100);
+  fill.style.width=pct.toFixed(1)+'%';
+  fill.className='fill'+(val>lim?' over':(val>lim*0.75?' hot':''));
+}
+function hud(){
+  const fallen=PH.fallen;
+  U.stat.textContent=fallen?'FALLEN':(PH.stable?'STABLE':'UNSTABLE');
+  U.stat.className='pill'+(PH.stable&&!fallen?'':' bad');
+  U.feet.textContent=PH.down+(PH.down===1?' foot down':' feet down');
+  U.marg.textContent=(PH.margin>-900?PH.margin.toFixed(0):'—')+' mm';
+  U.marg.className=PH.margin>0?'':'warn';
+  // offset of the CoM from the body's own centre — not from the world origin,
+  // which would just grow with distance travelled
+  U.com.textContent=Math.hypot(PH.com.x-(travel+swayX),PH.com.z-swayZ).toFixed(0)+' mm';
+  U.load.textContent=Math.max.apply(null,PH.loads).toFixed(2)+' kgf';
+  U.spd.textContent=(gndSpeed/10).toFixed(1)+' cm/s';
+  U.dist.textContent=(travel/1000).toFixed(2)+' m';
+  U.kt.textContent=PH.peakK.toFixed(1)+' / '+P.tq.toFixed(1);
+  U.ht.textContent=PH.peakH.toFixed(1)+' / '+P.tq.toFixed(1);
+  bar(U.fkt,PH.peakK,P.tq); bar(U.fht,PH.peakH,P.tq);
+  const lp=(1/1.6*100).toFixed(1)+'%'; U.lkt.style.left=lp; U.lht.style.left=lp;
+  legs.forEach((l,i)=>{const c=cells[i];
+    c.v[0].textContent=(l.ang[0]*180/Math.PI).toFixed(0)+'°';
+    c.v[1].textContent=(l.ang[1]*180/Math.PI).toFixed(0)+'°';
+    c.v[2].textContent=(l.ang[2]*180/Math.PI).toFixed(0)+'°';
+    c.tv.textContent=l.tq[2].toFixed(1);
+    bar(c.tf,l.tq[2],P.tq);
+    c.dot.className='dot'+(l.stance?' st':'');});
+}
+let seed=.3;
+function telemetry(dt){
+  seed=(seed+dt*.21)%1000;
+  const n=k=>Math.sin(seed*k)*.5+Math.sin(seed*k*2.3)*.3+Math.sin(seed*k*5.1)*.2;
+  const mv=GAITS[gait].hz>0;
+  U.voc.innerHTML=Math.round(95+n(1.3)*70+(mv?45:0))+'<u>ppb</u>';
+  U.co2.innerHTML=Math.round(468+n(.9)*120)+'<u>ppm</u>';
+  U.pm.innerHTML=Math.round(2400+n(2.7)*1500+(mv?1900:0))+'<u>pcs/L</u>';
+  // servo current scales with how hard the joints are actually working
+  const duty=Math.min(1.6,PH.peakK/Math.max(1,P.tq));
+  U.amp.innerHTML=(0.9+duty*3.4*(mv?1:0.45)+n(3.3)*.2).toFixed(1)+'<u>A</u>';
+}
+
+/* ===== controls ===== */
+E('gaits').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return;
+  gait=b.dataset.g;
+  [...e.currentTarget.querySelectorAll('button')].forEach(x=>
+    x.setAttribute('aria-pressed',x===b?'true':'false'));});
+function bind(id,k,fmt){const el=E('s-'+id),out=E('v-'+id);
+  const f=()=>{P[k]=parseFloat(el.value); out.textContent=fmt(el.value);};
+  el.addEventListener('input',f); f();}
+bind('speed','speed',v=>parseFloat(v).toFixed(2)+'×');
+bind('stride','stride',v=>v+' mm'); bind('lift','lift',v=>v+' mm');
+bind('sway','sway',v=>v+' %');      bind('h','h',v=>v+' mm');
+bind('pit','pitch',v=>v+'°');  bind('rol','roll',v=>v+'°');
+bind('yaw','yaw',v=>v+'°');    bind('tq','tq',v=>parseFloat(v).toFixed(1)+' kg·cm');
+const bf=E('b-fall');
+bf.addEventListener('click',()=>{letFall=!letFall;
+  bf.setAttribute('aria-pressed',letFall?'true':'false');
+  bf.textContent='Let it fall: '+(letFall?'ON':'OFF');
+  if(!letFall){PH.fallen=false;tip=0;tipVel=0;}});
+E('b-reset').addEventListener('click',()=>{PH.fallen=false;tip=0;tipVel=0;travel=0;rig.position.x=0;place();
+  robot.position.set(0,0,0); robot.quaternion.identity();});
+
+/* ===== loop ===== */
+addEventListener('resize',()=>{W=app.clientWidth;H=app.clientHeight;
+  camera.aspect=W/H; camera.updateProjectionMatrix(); renderer.setSize(W,H);
+  const f=fitDist(); if(cam.r<f) cam.r=f; place();});
+let last=performance.now(),hA=0,tA=0;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now;
+  if(!PH.fallen) kinematics(reduce?0:dt);
+  physics(); tipping(dt);
+  hA+=dt; if(hA>.1){hud();hA=0;}
+  tA+=dt; if(tA>.5){telemetry(tA);tA=0;}
+  renderer.render(scene,camera);
+  requestAnimationFrame(frame);
+}
+kinematics(0); physics(); hud(); telemetry(.5);
+requestAnimationFrame(frame);
+})();
+</script>
