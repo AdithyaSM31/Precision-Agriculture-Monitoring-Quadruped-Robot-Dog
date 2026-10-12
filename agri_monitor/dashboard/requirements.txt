@@ -1,0 +1,6 @@
+# Install CPU PyTorch first (small, no GPU needed for MobileNet):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+flask>=3.0
+pillow>=10.1
+requests>=2.31
+transformers>=4.40,<5
