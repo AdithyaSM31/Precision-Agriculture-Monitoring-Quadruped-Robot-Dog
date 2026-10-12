@@ -30,3 +30,6 @@ ros2_ws/moving.sh
 agri_monitor/firmware/*/secrets.h
 agri_monitor/dashboard/.venv/
 agri_monitor/dashboard/data/
+
+# MuJoCo simulation environment
+simulation/.venv/

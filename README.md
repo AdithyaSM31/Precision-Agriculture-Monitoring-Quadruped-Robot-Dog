@@ -18,6 +18,7 @@ B.Tech CSE (AI & Robotics), 2025–26 · Adithya · Rachit · Siddhesh
 | Quasi-static physics simulator | **Complete** |
 | Gazebo / ROS 2 package | Partial — see below |
 | Field monitoring payload — sensors, camera, dashboard | **Working end to end** — see [`agri_monitor/`](agri_monitor/README.md) |
+| MuJoCo field simulation — autonomous row survey | **Complete, walks and surveys without falling** — see [`simulation/`](simulation/README.md) |
 | Assembly and walking trials | Pending |
 
 The Gazebo package builds, spawns, activates its controllers and publishes live
@@ -68,6 +69,8 @@ ros2_ws/src/           spotmicro_ag_sim — ROS 2 Humble + Gazebo Classic packag
 agri_monitor/          field monitoring payload: XIAO ESP32-S3 sensor node,
                        ESP32-CAM camera node, Flask dashboard + leaf classifier,
                        wiring-diagram.html
+simulation/            MuJoCo physics simulation: autonomous survey of a crop
+                       field, MG996R torque limits, results and video
 quadruped-sim.html     browser gait simulator (open directly, no install)
 wiring-map.html        power chain, 40-pin map, level shifting, bring-up order
 ```
