@@ -25,3 +25,8 @@ ros2_ws/trace.sh
 ros2_ws/test_sim.sh
 ros2_ws/args.sh
 ros2_ws/moving.sh
+
+# AgriBot monitor - secrets, environment and runtime data
+agri_monitor/firmware/*/secrets.h
+agri_monitor/dashboard/.venv/
+agri_monitor/dashboard/data/

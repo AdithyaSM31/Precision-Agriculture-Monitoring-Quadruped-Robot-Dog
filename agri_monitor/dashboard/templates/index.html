@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgriBot Field Monitor</title>
+<style>
+  :root {
+    --bg: #f4f6f3; --panel: #ffffff; --ink: #1d2a22; --muted: #66756b; --line: #e1e7e2;
+    --good: #23824a; --moderate: #c47f0a; --high: #c0392b; --warmup: #8a948d;
+    --accent: #2f6f4f; --shadow: 0 1px 2px rgba(20,40,30,.06), 0 4px 14px rgba(20,40,30,.05);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  header { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+           padding: 14px 24px; background: var(--panel); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 19px; margin: 0; letter-spacing: -.01em; }
+  header h1 span { color: var(--accent); }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; align-items: center; }
+  .pill { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; background: #eef2ef;
+          color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warmup); }
+  .on .dot { background: var(--good); box-shadow: 0 0 0 3px rgba(35,130,74,.15); }
+  .off .dot { background: var(--high); }
+  #clock { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
+  main { max-width: 1280px; margin: 0 auto; padding: 20px 24px 40px; display: grid; gap: 18px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .grid2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+          padding: 16px 18px; box-shadow: var(--shadow); min-width: 0; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+             margin: 0 0 10px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .metric { display: flex; align-items: baseline; gap: 6px; }
+  .metric .v { font-size: 38px; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .metric .u { color: var(--muted); font-size: 14px; }
+  .badge { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+           padding: 3px 8px; border-radius: 6px; color: #fff; background: var(--warmup); }
+  .b-good { background: var(--good); } .b-moderate { background: var(--moderate); }
+  .b-high { background: var(--high); } .b-warmup { background: var(--warmup); }
+  .b-absent { background: var(--moderate); }
+  .sub { color: var(--muted); font-size: 12.5px; margin-top: 2px; min-height: 18px; }
+  svg.chart { width: 100%; height: 86px; display: block; margin-top: 8px; }
+  .camwrap { position: relative; background: #101712; border-radius: 9px; overflow: hidden;
+             aspect-ratio: 4 / 3; display: grid; place-items: center; }
+  .camwrap img { width: 100%; height: 100%; object-fit: contain; display: none; }
+  .camwrap .msg { color: #9fb0a5; font-size: 13.5px; padding: 20px; text-align: center; }
+  .live { position: absolute; top: 10px; left: 10px; background: var(--high); color: #fff;
+          font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display: none; }
+  .row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  input[type=text], input[type=number] { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--line);
+         border-radius: 8px; font: inherit; font-size: 13.5px; background: #fbfcfb; color: var(--ink); }
+  input[type=number] { flex: 0 0 88px; }
+  button, .btn { padding: 8px 14px; border: 1px solid var(--accent); background: var(--accent); color: #fff;
+           border-radius: 8px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
+           text-decoration: none; display: inline-flex; align-items: center; }
+  button.ghost, .btn.ghost { background: #fff; color: var(--accent); }
+  button:disabled { opacity: .5; cursor: default; }
+  .result { display: grid; gap: 10px; }
+  .result .label { font-size: 24px; font-weight: 650; letter-spacing: -.01em; }
+  .result .crop { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+  .bar { height: 8px; background: #edf1ee; border-radius: 4px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+  .top3 { display: grid; gap: 6px; font-size: 13px; }
+  .top3 div { display: grid; grid-template-columns: 1fr 52px; gap: 8px; align-items: center; }
+  .top3 .bar { grid-column: 1 / -1; height: 5px; }
+  .ctx { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted);
+         border-top: 1px solid var(--line); padding-top: 10px; }
+  .ctx b { color: var(--ink); font-weight: 600; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+  .shot { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+  .shot img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: #eef2ef; }
+  .shot .meta { padding: 8px 10px; font-size: 12.5px; }
+  .shot .meta b { display: block; font-size: 13.5px; }
+  .shot .meta span { color: var(--muted); }
+  .empty { color: var(--muted); font-size: 13.5px; padding: 18px 0; }
+  .err { color: var(--high); font-size: 12.5px; margin-top: 8px; min-height: 16px; word-break: break-word; }
+  footer { text-align: center; color: var(--muted); font-size: 12.5px; padding-bottom: 24px; }
+  @media (max-width: 960px) { .grid3, .grid2 { grid-template-columns: 1fr; } main { padding: 16px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>AgriBot <span>Field Monitor</span></h1>
+  <div class="pills">
+    <span class="pill" id="p-node"><i class="dot"></i><span>Sensor node</span></span>
+    <span class="pill" id="p-cam"><i class="dot"></i><span>Camera</span></span>
+    <span class="pill" id="p-ai"><i class="dot"></i><span>Classifier</span></span>
+    <span id="clock"></span>
+  </div>
+</header>
+
+<main>
+  <section class="grid3">
+    <div class="card">
+      <h2>eCO₂ <span class="badge" id="b-eco2">–</span></h2>
+      <div class="metric"><span class="v" id="v-eco2">–</span><span class="u">ppm</span></div>
+      <div class="sub">SGP30 · good &lt; 1000 · high ≥ 2000</div>
+      <svg class="chart" id="c-eco2"></svg>
+    </div>
+    <div class="card">
+      <h2>TVOC <span class="badge" id="b-tvoc">–</span></h2>
+      <div class="metric"><span class="v" id="v-tvoc">–</span><span class="u">ppb</span></div>
+      <div class="sub">SGP30 · good &lt; 220 · high ≥ 660</div>
+      <svg class="chart" id="c-tvoc"></svg>
+    </div>
+    <div class="card">
+      <h2><span>Dust <span style="text-transform:none">(&gt;1 µm)</span></span> <span class="badge" id="b-dust">–</span></h2>
+      <div class="metric"><span class="v" id="v-dust">–</span><span class="u">pcs / 0.01 ft³</span></div>
+      <div class="sub" id="s-dust">PPD42 · 30 s sampling window</div>
+      <svg class="chart" id="c-dust"></svg>
+    </div>
+  </section>
+
+  <section class="grid3">
+    <div class="card">
+      <h2>Temperature <span class="badge" id="b-temp">–</span></h2>
+      <div class="metric"><span class="v" id="v-temp">–</span><span class="u">°C</span></div>
+      <div class="sub">MCP9808 · ±0.25 °C · also corrects ultrasonic speed of sound</div>
+      <svg class="chart" id="c-temp"></svg>
+    </div>
+    <div class="card">
+      <h2>Front distance <span class="badge" id="b-front">–</span></h2>
+      <div class="metric"><span class="v" id="v-front">–</span><span class="u">cm</span></div>
+      <div class="sub">HC-SR04 #1 · obstacle / end-of-row detection</div>
+      <svg class="chart" id="c-front"></svg>
+    </div>
+    <div class="card">
+      <h2>Canopy height <span class="badge" id="b-canopy">–</span></h2>
+      <div class="metric"><span class="v" id="v-canopy">–</span><span class="u">cm</span></div>
+      <div class="sub" id="s-canopy">HC-SR04 #2 facing down · sensor height − distance</div>
+      <svg class="chart" id="c-canopy"></svg>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h2>Crop camera <span id="cam-note" style="text-transform:none;letter-spacing:0;font-weight:400"></span></h2>
+      <div class="camwrap">
+        <span class="live" id="live">LIVE</span>
+        <img id="cam" alt="Live camera frame">
+        <div class="msg" id="cam-msg">No camera set. Enter its snapshot URL below.</div>
+      </div>
+      <div class="row">
+        <input type="text" id="cam-url" placeholder="http://192.168.137.50/capture">
+        <input type="number" id="cam-auto" min="0" step="5" title="Auto-scan every N seconds (0 = off)" placeholder="auto s">
+        <button class="ghost" id="cam-save">Connect</button>
+      </div>
+      <div class="row">
+        <button id="scan">Scan leaf now</button>
+        <label class="btn ghost" for="upload">Upload image…</label>
+        <input type="file" id="upload" accept="image/*" hidden>
+      </div>
+      <div class="err" id="cam-err"></div>
+    </div>
+
+    <div class="card">
+      <h2>Latest diagnosis</h2>
+      <div id="result"><div class="empty">No leaf scanned yet. Use <b>Scan leaf now</b> or upload an image.</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Tagged captures <span id="count" style="text-transform:none;letter-spacing:0;font-weight:400"></span></h2>
+    <div class="gallery" id="gallery"><div class="empty">Tagged images appear here, each stamped with the air readings at capture time.</div></div>
+  </section>
+</main>
+
+<footer>
+  <a class="btn ghost" href="/api/export.csv">Download today's sensor log (CSV)</a>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = (v, d = 0) => (v === null || v === undefined || Number.isNaN(v)) ? "–" : Number(v).toLocaleString(undefined, { maximumFractionDigits: d });
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let lastDetectionId = null, camConfigured = false;
+
+function pill(id, cls, text) {
+  const el = $(id);
+  el.className = "pill " + cls;
+  el.querySelector("span").textContent = text;
+}
+
+function setBadge(id, text, cls) {
+  const el = $(id);
+  el.className = "badge " + (text ? cls : "b-warmup");
+  el.textContent = text || "–";
+}
+
+function badge(id, level) {
+  const el = $(id);
+  el.className = "badge b-" + (level || "warmup");
+  el.textContent = level || "–";
+}
+
+// Minimal SVG line chart over the last 10 minutes (x = seconds ago).
+function chart(svgId, points, colour) {
+  const svg = $(svgId), W = svg.clientWidth || 300, H = 86, pad = 4;
+  const pts = points.filter(p => p.v !== null && p.v !== undefined);
+  if (pts.length < 2) {
+    svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" fill="#9aa59e" font-size="12">waiting for data</text>`;
+    return;
+  }
+  let lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v));
+  if (hi - lo < 1e-9) { hi += 1; lo -= 1; }
+  // Fit the x-axis to the data until a full 10 minutes has been collected.
+  const span = Math.min(600, Math.max(20, -pts[0].t));
+  const x = t => pad + (W - 2 * pad) * (1 + t / span), y = v => H - 16 - (H - 26) * (v - lo) / (hi - lo);
+  const spanLabel = span >= 120 ? `−${Math.round(span / 60)} min` : `−${Math.round(span)} s`;
+  const line = pts.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
+  const area = `${line}L${x(pts.at(-1).t).toFixed(1)},${H - 16}L${x(pts[0].t).toFixed(1)},${H - 16}Z`;
+  svg.innerHTML =
+    `<path d="${area}" fill="${colour}" opacity=".10"/>` +
+    `<path d="${line}" fill="none" stroke="${colour}" stroke-width="2" stroke-linejoin="round"/>` +
+    `<text x="${W - 2}" y="10" text-anchor="end" fill="#9aa59e" font-size="10.5">max ${fmt(hi)}</text>` +
+    `<text x="2" y="${H - 2}" fill="#9aa59e" font-size="10.5">${spanLabel}</text>` +
+    `<text x="${W - 2}" y="${H - 2}" text-anchor="end" fill="#9aa59e" font-size="10.5">now</text>`;
+}
+
+function contextLine(s) {
+  if (!s) return `<div class="ctx">No sensor reading at capture time</div>`;
+  return `<div class="ctx"><span>eCO₂ <b>${fmt(s.eco2_ppm)}</b> ppm</span>` +
+         `<span>TVOC <b>${fmt(s.tvoc_ppb)}</b> ppb</span>` +
+         `<span>Dust <b>${s.dust_valid ? fmt(s.dust_pcs_per_0_01cf) : "warming"}</b></span>` +
+         (s.temp_c != null ? `<span>Temp <b>${fmt(s.temp_c, 1)}</b> °C</span>` : "") +
+         (s.canopy_cm != null ? `<span>Canopy <b>${fmt(s.canopy_cm, 1)}</b> cm</span>` : "") + `</div>`;
+}
+
+function renderResult(d) {
+  if (!d) return;
+  const colour = d.healthy === null ? "var(--warmup)" : d.healthy ? "var(--good)" : "var(--high)";
+  $("result").innerHTML = `<div class="result">
+    <div class="crop">${esc(d.crop)} · ${esc(d.source)} · ${esc(d.time.replace("T", " "))}</div>
+    <div class="label" style="color:${colour}">${esc(d.condition)}</div>
+    <div><div class="bar"><i style="width:${(d.confidence * 100).toFixed(0)}%;background:${colour}"></i></div>
+      <div class="sub">Confidence ${(d.confidence * 100).toFixed(1)} % · inference ${fmt(d.inference_ms, 1)} ms</div></div>
+    <div class="top3">${d.top3.map(p => `<div><span>${esc(p.label.replaceAll("_", " ").replace(/\s+/g, " "))}</span>
+      <span style="text-align:right">${(p.score * 100).toFixed(1)}%</span>
+      <div class="bar"><i style="width:${(p.score * 100).toFixed(0)}%"></i></div></div>`).join("")}</div>
+    ${contextLine(d.sensors)}
+    <img src="${esc(d.image)}" alt="Tagged capture" style="width:100%;border-radius:8px;border:1px solid var(--line)">
+  </div>`;
+}
+
+function renderGallery(list) {
+  $("count").textContent = list.length ? `${list.length} most recent` : "";
+  if (!list.length) return;
+  $("gallery").innerHTML = list.map(d => {
+    const colour = d.healthy === null ? "var(--warmup)" : d.healthy ? "var(--good)" : "var(--high)";
+    return `<div class="shot"><img src="${esc(d.image)}" loading="lazy" alt="${esc(d.condition)}">
+      <div class="meta"><b style="color:${colour}">${esc(d.condition)}</b>
+      <span>${esc(d.crop)} · ${(d.confidence * 100).toFixed(0)}% · ${esc(d.time.slice(11))}</span></div></div>`;
+  }).join("");
+}
+
+async function refresh() {
+  let s;
+  try { s = await (await fetch("/api/state", { cache: "no-store" })).json(); }
+  catch { pill("p-node", "off", "Dashboard offline"); return; }
+
+  const n = s.node, r = n.latest || {};
+  pill("p-node", n.online ? "on" : "off",
+       n.online ? `Sensor node ${n.ip}` : n.age_s === null ? "Sensor node: waiting" : `Sensor node lost ${fmt(n.age_s)} s ago`);
+  pill("p-ai", s.classifier.ready ? "on" : s.classifier.error ? "off" : "",
+       s.classifier.ready ? "Classifier ready" : s.classifier.error ? "Classifier failed" : "Classifier loading…");
+  pill("p-cam", s.camera.live ? "on" : s.camera.url ? "off" : "",
+       s.camera.live ? "Camera live" : s.camera.url ? "Camera unreachable" : "No camera");
+
+  const stale = !n.online;
+  $("v-eco2").textContent = stale ? "–" : fmt(r.eco2_ppm);
+  $("v-tvoc").textContent = stale ? "–" : fmt(r.tvoc_ppb);
+  $("v-dust").textContent = stale || !r.dust_valid ? "–" : fmt(r.dust_pcs_per_0_01cf);
+  badge("b-eco2", stale ? null : r.air_level);
+  badge("b-tvoc", stale ? null : r.air_level);
+  badge("b-dust", stale ? null : r.dust_level);
+  $("s-dust").textContent = !stale && r.dust_present === false ? "PPD42 not detected · check its wiring"
+    : !stale && !r.dust_valid ? "PPD42 heater warming up (~60 s)" : "PPD42 · 30 s sampling window";
+
+  chart("c-eco2", s.history.map(h => ({ t: h.t, v: h.eco2 })), "#2f6f4f");
+  chart("c-tvoc", s.history.map(h => ({ t: h.t, v: h.tvoc })), "#c47f0a");
+  chart("c-dust", s.history.map(h => ({ t: h.t, v: h.dust })), "#5b6fa8");
+
+  const has = v => !stale && v !== null && v !== undefined;
+  $("v-temp").textContent = has(r.temp_c) ? fmt(r.temp_c, 1) : "–";
+  setBadge("b-temp", r.mcp9808_ok === false ? "missing" : has(r.temp_c) ? "live" : null,
+           r.mcp9808_ok === false ? "b-high" : "b-good");
+  $("v-front").textContent = has(r.front_cm) ? fmt(r.front_cm, 1) : "–";
+  setBadge("b-front", !has(r.front_cm) ? (stale ? null : "no echo") : r.obstacle ? "obstacle" : "clear",
+           r.obstacle ? "b-high" : has(r.front_cm) ? "b-good" : "b-warmup");
+  $("v-canopy").textContent = has(r.canopy_cm) ? fmt(r.canopy_cm, 1) : "–";
+  setBadge("b-canopy", has(r.canopy_cm) ? "live" : stale ? null : "no echo",
+           has(r.canopy_cm) ? "b-good" : "b-warmup");
+  $("s-canopy").textContent = has(r.down_cm)
+    ? `HC-SR04 #2 facing down · ${fmt(r.down_cm, 1)} cm to the crop`
+    : "HC-SR04 #2 facing down · sensor height − distance";
+  chart("c-temp", s.history.map(h => ({ t: h.t, v: h.temp })), "#b4532a");
+  chart("c-front", s.history.map(h => ({ t: h.t, v: h.front })), "#6b5ba8");
+  chart("c-canopy", s.history.map(h => ({ t: h.t, v: h.canopy })), "#2f8f6f");
+
+  if (!camConfigured) {
+    $("cam-url").value = s.camera.url || "";
+    $("cam-auto").value = s.camera.auto_scan_s || 0;
+    camConfigured = true;
+  }
+  $("live").style.display = s.camera.live ? "block" : "none";
+  $("cam").style.display = s.camera.live ? "block" : "none";
+  $("cam-msg").style.display = s.camera.live ? "none" : "block";
+  // The <img> holds one long-lived MJPEG connection; it is only re-pointed when
+  // the feed drops and comes back, never reloaded on each poll.
+  const cam = $("cam");
+  if (s.camera.live && !cam.dataset.streaming) {
+    cam.src = "/api/camera/stream?t=" + Date.now();
+    cam.dataset.streaming = "1";
+  } else if (!s.camera.live && cam.dataset.streaming) {
+    cam.removeAttribute("src");
+    delete cam.dataset.streaming;
+  }
+  if (!s.camera.live) $("cam-msg").textContent = s.camera.url ? `Cannot reach ${s.camera.url}` : "No camera set. Enter its snapshot URL below.";
+  const notes = [];
+  if (s.camera.live) notes.push(`${fmt(s.camera.fps, 1)} fps${s.camera.streaming ? "" : " · photo mode"}`);
+  if (s.camera.auto_scan_s > 0) notes.push(`auto-scan every ${s.camera.auto_scan_s} s`);
+  $("cam-note").textContent = notes.join(" · ");
+  if (s.camera.url && s.camera.error) $("cam-err").textContent = s.camera.error;
+  else if ($("cam-err").dataset.sticky !== "1") $("cam-err").textContent = "";
+
+  if (s.detections.length && s.detections[0].id !== lastDetectionId) {
+    lastDetectionId = s.detections[0].id;
+    renderResult(s.detections[0]);
+    renderGallery(s.detections);
+  }
+}
+
+function showError(msg) {
+  $("cam-err").textContent = msg;
+  $("cam-err").dataset.sticky = "1";
+  setTimeout(() => { $("cam-err").dataset.sticky = "0"; }, 6000);
+}
+
+async function postJson(url, body) {
+  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+
+$("cam-save").onclick = async () => {
+  try { await postJson("/api/camera", { url: $("cam-url").value, auto_scan_s: Number($("cam-auto").value) || 0 }); refresh(); }
+  catch (e) { showError(e.message); }
+};
+
+$("scan").onclick = async () => {
+  $("scan").disabled = true;
+  try { renderResult(await postJson("/api/scan", {})); lastDetectionId = null; refresh(); }
+  catch (e) { showError(e.message); }
+  finally { $("scan").disabled = false; }
+};
+
+$("upload").onchange = async () => {
+  const file = $("upload").files[0];
+  if (!file) return;
+  const form = new FormData();
+  form.append("image", file);
+  try {
+    const res = await fetch("/api/classify", { method: "POST", body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    renderResult(data); lastDetectionId = null; refresh();
+  } catch (e) { showError(e.message); }
+  $("upload").value = "";
+};
+
+setInterval(() => { $("clock").textContent = new Date().toLocaleTimeString(); }, 1000);
+setInterval(refresh, 2000);
+refresh();
+</script>
+</body>
+</html>
