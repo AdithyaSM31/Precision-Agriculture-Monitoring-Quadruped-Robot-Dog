@@ -32,8 +32,6 @@ def main():
         tvoc = int(max(0, (90 + 40 * math.sin(t / 25)) * spike + random.uniform(-8, 8)))
         dust = max(0.0, 4200 + 1800 * math.sin(t / 55) * spike + random.uniform(-300, 300))
         temp = 29.5 + 1.2 * math.sin(t / 120) + random.uniform(-0.05, 0.05)
-        front = 18 + random.uniform(-1, 1) if int(t) % 60 < 8 else 140 + 30 * math.sin(t / 30)
-        down = 40 - (12 + 2 * math.sin(t / 70)) + random.uniform(-0.4, 0.4)  # 40 cm mount
         air = "warmup" if t < 15 else level(tvoc, 220, 660) if level(tvoc, 220, 660) != "good" else level(eco2, 1000, 2000)
         payload = {
             "node": "fake", "uptime_s": int(t), "rssi": -55, "sgp30_ok": True,
@@ -42,8 +40,6 @@ def main():
             "dust_pcs_per_0_01cf": round(dust, 1),
             "dust_level": level(dust, 10000, 20000) if t >= 60 else "warmup",
             "mcp9808_ok": True, "temp_c": round(temp, 2),
-            "front_cm": round(front, 1), "obstacle": front < 25,
-            "down_cm": round(down, 1), "canopy_cm": round(max(0.0, 40 - down), 1),
             "muted": False,
         }
         req = urllib.request.Request(args.url + "/api/sensors", data=json.dumps(payload).encode(),

@@ -9,6 +9,8 @@ import os
 import threading
 import time
 
+import numpy as np
+
 MODEL_ID = os.environ.get(
     "AGRI_MODEL", "linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
 )
@@ -70,18 +72,41 @@ class LeafClassifier:
         if not self.ready:
             return None
         t0 = time.time()
+        coverage = leaf_coverage(image)
         with self._lock:
             top = self._pipe(image.convert("RGB"), top_k=3)
         best = top[0]
         crop, condition, healthy = describe(best["label"])
-        confident = best["score"] >= MIN_CONFIDENCE
+        has_leaf = coverage >= MIN_LEAF_COVERAGE
+        confident = has_leaf and best["score"] >= MIN_CONFIDENCE
+        if not has_leaf:
+            crop, condition = "No leaf", "No leaf in view - hold a leaf close to the camera"
+        elif not confident:
+            crop, condition = "Unknown", "Uncertain - not a recognised leaf"
         return {
             "label": best["label"],
-            "crop": crop if confident else "Unknown",
-            "condition": condition if confident else "Uncertain - not a recognised leaf",
+            "crop": crop,
+            "condition": condition,
             "healthy": healthy if confident else None,
             "confidence": round(float(best["score"]), 4),
             "confident": confident,
+            "leaf_coverage": round(coverage, 3),
             "top3": [{"label": p["label"], "score": round(float(p["score"]), 4)} for p in top],
             "inference_ms": round((time.time() - t0) * 1000, 1),
         }
+
+
+# The model has no "not a leaf" class, so it answers confidently even for a
+# photo of a wall. This vegetation check runs first: it measures how much of
+# the frame is leaf-coloured (green through yellow, reasonably saturated) -
+# the same idea as the excess-green indices used in crop imaging. Walls, skin,
+# wood and floors fall outside that hue band.
+MIN_LEAF_COVERAGE = float(os.environ.get("AGRI_MIN_LEAF", "0.12"))
+
+
+def leaf_coverage(image):
+    hsv = np.asarray(image.convert("RGB").resize((160, 120)).convert("HSV"), dtype=np.float32)
+    hue = hsv[..., 0] * (360 / 255)
+    sat, val = hsv[..., 1] / 255, hsv[..., 2] / 255
+    leafy = (hue >= 38) & (hue <= 165) & (sat >= 0.20) & (val >= 0.12)
+    return float(leafy.mean())

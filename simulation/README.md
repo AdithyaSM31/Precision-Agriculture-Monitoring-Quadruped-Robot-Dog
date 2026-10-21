@@ -46,8 +46,8 @@ The leg inverse kinematics are checked against MuJoCo's own forward kinematics
 | Row ends detected by ultrasonic | 3 of 3, at 55 cm from the hedge |
 | TVOC peak | 535 ppb, 0.2 m from the true source (SGP30 response lag) |
 
-**Trot speed is limited by the MG996R.** Below 0.18 m/s the robot tracks the
-commanded speed to within 7 %. At 0.20 m/s the servos sit at their torque limit
+**Trot speed is limited by the MG996R.** From 0.08 to 0.18 m/s the robot tracks
+the commanded speed to within 7 %. At 0.20 m/s the servos sit at their torque limit
 68 % of the time and tilt grows to 12°; at 0.22 m/s it falls. The survey runs at
 0.14 m/s for margin. See `results/speed_sweep.png`.
 

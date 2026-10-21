@@ -25,7 +25,8 @@
   .off .dot { background: var(--high); }
   #clock { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
   main { max-width: 1280px; margin: 0 auto; padding: 20px 24px 40px; display: grid; gap: 18px; }
-  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  @media (max-width: 1200px) { .grid4 { grid-template-columns: repeat(2, 1fr); } }
   .grid2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
           padding: 16px 18px; box-shadow: var(--shadow); min-width: 0; }
@@ -76,7 +77,7 @@
   .empty { color: var(--muted); font-size: 13.5px; padding: 18px 0; }
   .err { color: var(--high); font-size: 12.5px; margin-top: 8px; min-height: 16px; word-break: break-word; }
   footer { text-align: center; color: var(--muted); font-size: 12.5px; padding-bottom: 24px; }
-  @media (max-width: 960px) { .grid3, .grid2 { grid-template-columns: 1fr; } main { padding: 16px; } }
+  @media (max-width: 960px) { .grid4, .grid2 { grid-template-columns: 1fr; } main { padding: 16px; } }
 </style>
 </head>
 <body>
@@ -91,7 +92,7 @@
 </header>
 
 <main>
-  <section class="grid3">
+  <section class="grid4">
     <div class="card">
       <h2>eCO₂ <span class="badge" id="b-eco2">–</span></h2>
       <div class="metric"><span class="v" id="v-eco2">–</span><span class="u">ppm</span></div>
@@ -110,26 +111,11 @@
       <div class="sub" id="s-dust">PPD42 · 30 s sampling window</div>
       <svg class="chart" id="c-dust"></svg>
     </div>
-  </section>
-
-  <section class="grid3">
     <div class="card">
       <h2>Temperature <span class="badge" id="b-temp">–</span></h2>
       <div class="metric"><span class="v" id="v-temp">–</span><span class="u">°C</span></div>
-      <div class="sub">MCP9808 · ±0.25 °C · also corrects ultrasonic speed of sound</div>
+      <div class="sub">MCP9808 · ±0.25 °C</div>
       <svg class="chart" id="c-temp"></svg>
-    </div>
-    <div class="card">
-      <h2>Front distance <span class="badge" id="b-front">–</span></h2>
-      <div class="metric"><span class="v" id="v-front">–</span><span class="u">cm</span></div>
-      <div class="sub">HC-SR04 #1 · obstacle / end-of-row detection</div>
-      <svg class="chart" id="c-front"></svg>
-    </div>
-    <div class="card">
-      <h2>Canopy height <span class="badge" id="b-canopy">–</span></h2>
-      <div class="metric"><span class="v" id="v-canopy">–</span><span class="u">cm</span></div>
-      <div class="sub" id="s-canopy">HC-SR04 #2 facing down · sensor height − distance</div>
-      <svg class="chart" id="c-canopy"></svg>
     </div>
   </section>
 
@@ -223,8 +209,7 @@ function contextLine(s) {
   return `<div class="ctx"><span>eCO₂ <b>${fmt(s.eco2_ppm)}</b> ppm</span>` +
          `<span>TVOC <b>${fmt(s.tvoc_ppb)}</b> ppb</span>` +
          `<span>Dust <b>${s.dust_valid ? fmt(s.dust_pcs_per_0_01cf) : "warming"}</b></span>` +
-         (s.temp_c != null ? `<span>Temp <b>${fmt(s.temp_c, 1)}</b> °C</span>` : "") +
-         (s.canopy_cm != null ? `<span>Canopy <b>${fmt(s.canopy_cm, 1)}</b> cm</span>` : "") + `</div>`;
+         (s.temp_c != null ? `<span>Temp <b>${fmt(s.temp_c, 1)}</b> °C</span>` : "") + `</div>`;
 }
 
 function renderResult(d) {
@@ -234,7 +219,7 @@ function renderResult(d) {
     <div class="crop">${esc(d.crop)} · ${esc(d.source)} · ${esc(d.time.replace("T", " "))}</div>
     <div class="label" style="color:${colour}">${esc(d.condition)}</div>
     <div><div class="bar"><i style="width:${(d.confidence * 100).toFixed(0)}%;background:${colour}"></i></div>
-      <div class="sub">Confidence ${(d.confidence * 100).toFixed(1)} % · inference ${fmt(d.inference_ms, 1)} ms</div></div>
+      <div class="sub">${d.leaf_coverage != null ? `Leaf coverage ${(d.leaf_coverage * 100).toFixed(0)} % (needs 12 %) · ` : ""}Model confidence ${(d.confidence * 100).toFixed(1)} % · inference ${fmt(d.inference_ms, 1)} ms</div></div>
     <div class="top3">${d.top3.map(p => `<div><span>${esc(p.label.replaceAll("_", " ").replace(/\s+/g, " "))}</span>
       <span style="text-align:right">${(p.score * 100).toFixed(1)}%</span>
       <div class="bar"><i style="width:${(p.score * 100).toFixed(0)}%"></i></div></div>`).join("")}</div>
@@ -285,18 +270,7 @@ async function refresh() {
   $("v-temp").textContent = has(r.temp_c) ? fmt(r.temp_c, 1) : "–";
   setBadge("b-temp", r.mcp9808_ok === false ? "missing" : has(r.temp_c) ? "live" : null,
            r.mcp9808_ok === false ? "b-high" : "b-good");
-  $("v-front").textContent = has(r.front_cm) ? fmt(r.front_cm, 1) : "–";
-  setBadge("b-front", !has(r.front_cm) ? (stale ? null : "no echo") : r.obstacle ? "obstacle" : "clear",
-           r.obstacle ? "b-high" : has(r.front_cm) ? "b-good" : "b-warmup");
-  $("v-canopy").textContent = has(r.canopy_cm) ? fmt(r.canopy_cm, 1) : "–";
-  setBadge("b-canopy", has(r.canopy_cm) ? "live" : stale ? null : "no echo",
-           has(r.canopy_cm) ? "b-good" : "b-warmup");
-  $("s-canopy").textContent = has(r.down_cm)
-    ? `HC-SR04 #2 facing down · ${fmt(r.down_cm, 1)} cm to the crop`
-    : "HC-SR04 #2 facing down · sensor height − distance";
   chart("c-temp", s.history.map(h => ({ t: h.t, v: h.temp })), "#b4532a");
-  chart("c-front", s.history.map(h => ({ t: h.t, v: h.front })), "#6b5ba8");
-  chart("c-canopy", s.history.map(h => ({ t: h.t, v: h.canopy })), "#2f8f6f");
 
   if (!camConfigured) {
     $("cam-url").value = s.camera.url || "";

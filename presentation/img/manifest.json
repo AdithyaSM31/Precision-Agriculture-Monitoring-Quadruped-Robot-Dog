@@ -1,0 +1,110 @@
+{
+ "contact_sheet.jpg": [
+  1567,
+  1216
+ ],
+ "dash_cards.jpg": [
+  1982,
+  372
+ ],
+ "frame_03_diseased_patch.jpg": [
+  1280,
+  720
+ ],
+ "hw_leg_test.jpg": [
+  648,
+  568
+ ],
+ "hw_stand_test.jpg": [
+  908,
+  708
+ ],
+ "photo_oled.jpg": [
+  1280,
+  720
+ ],
+ "photo_robot.jpg": [
+  1670,
+  990
+ ],
+ "real_log_session.png": [
+  1344,
+  1217
+ ],
+ "scan_hedge.jpg": [
+  1876,
+  1111
+ ],
+ "scan_plant.jpg": [
+  1882,
+  1116
+ ],
+ "scan_spots.jpg": [
+  1890,
+  1099
+ ],
+ "sim_locomotion.png": [
+  1600,
+  1056
+ ],
+ "sim_survey_poster.jpg": [
+  1280,
+  720
+ ],
+ "speed_sweep.jpg": [
+  1280,
+  640
+ ],
+ "survey_map.jpg": [
+  1600,
+  736
+ ],
+ "vegetation_gate.png": [
+  1543,
+  809
+ ],
+ "video1_poster.jpg": [
+  1280,
+  720
+ ],
+ "video2_poster.jpg": [
+  1280,
+  720
+ ],
+ "vit_logo.jpg": [
+  900,
+  298
+ ],
+ "video1.mp4": [
+  1280,
+  720
+ ],
+ "video2.mp4": [
+  1280,
+  720
+ ],
+ "sim_survey.mp4": [
+  1280,
+  720
+ ],
+ "diag_hedge.jpg": [
+  840,
+  1081
+ ],
+ "diag_plant.jpg": [
+  846,
+  1086
+ ],
+ "diag_spots.jpg": [
+  854,
+  1069
+ ],
+ "leg_kinematics.png": [
+  875,
+  885
+ ],
+ "com_support_line.png": [
+  862,
+  829
+ ]
+}

@@ -82,7 +82,12 @@ def log_reading(row):
     path = DATA / f"sensors_{datetime.now():%Y-%m-%d}.csv"
     fields = ["time", "eco2_ppm", "tvoc_ppb", "air_level",
               "dust_pcs_per_0_01cf", "dust_ratio_pct", "dust_level",
-              "temp_c", "front_cm", "obstacle", "down_cm", "canopy_cm", "rssi"]
+              "temp_c", "rssi"]
+    if path.exists():
+        with path.open() as f:
+            header = f.readline().strip().split(",")
+        if header != fields:  # columns changed since this file was started: set it aside
+            path.rename(path.with_name(f"{path.stem}_before_{datetime.now():%H%M%S}.csv"))
     new = not path.exists()
     with path.open("a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
@@ -97,7 +102,7 @@ def sensor_snapshot():
     if not latest or time.time() - node["last_seen"] > NODE_TIMEOUT_S:
         return None
     keys = ("eco2_ppm", "tvoc_ppb", "air_level", "dust_pcs_per_0_01cf", "dust_level", "dust_valid",
-            "temp_c", "canopy_cm")
+            "temp_c")
     return {k: latest.get(k) for k in keys}
 
 
@@ -238,8 +243,7 @@ def receive_sensors():
         node.update(latest=row, last_seen=now, ip=request.remote_addr)
         history.append({"t": now, "eco2": payload.get("eco2_ppm"), "tvoc": payload.get("tvoc_ppb"),
                         "dust": payload.get("dust_pcs_per_0_01cf") if payload.get("dust_valid") else None,
-                        "temp": payload.get("temp_c"), "front": payload.get("front_cm"),
-                        "canopy": payload.get("canopy_cm")})
+                        "temp": payload.get("temp_c")})
     log_reading(row)
     return jsonify(ok=True)
 
@@ -348,7 +352,7 @@ def captures(name):
 
 @app.get("/api/export.csv")
 def export_csv():
-    files = sorted(DATA.glob("sensors_*.csv"))
+    files = sorted(DATA.glob("sensors_*.csv"), key=lambda f: f.stat().st_mtime)
     if not files:
         abort(404)
     return send_from_directory(DATA, files[-1].name, as_attachment=True)
