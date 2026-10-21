@@ -14,6 +14,7 @@ const ROOT = path.resolve(__dirname, "..");
 const IMG = path.join(__dirname, "img");
 const MAN = JSON.parse(fs.readFileSync(path.join(IMG, "manifest.json"), "utf8"));
 const LIT = JSON.parse(fs.readFileSync(path.join(__dirname, "old_lit.json"), "utf8"));
+const NOTES = require("./speaker_notes.js");   // detailed notes, keyed by slide title
 const SWEEP = JSON.parse(fs.readFileSync(path.join(ROOT, "simulation", "results", "speed_sweep.json"), "utf8"));
 const SESSION_CSV = path.join(ROOT, "agri_monitor", "dashboard", "data", "sensors_2026-10-14.csv");
 const OUT = process.argv[2] || path.join(ROOT, "Project Final Review PPT.pptx");
@@ -107,7 +108,8 @@ const nm = (p) => `${p}-${++objId}`;
 function contentSlide(section, title, notes) {
   const s = pres.addSlide({ masterName: "CONTENT", sectionTitle: section });
   s.addText(title, { placeholder: "title" });
-  if (notes) s.addNotes(notes);
+  const n = NOTES[title] || notes;
+  if (n) s.addNotes(n);
   return s;
 }
 
@@ -118,7 +120,8 @@ async function divider(section, num, title, body, icon, notes) {
   s.addText(title, { placeholder: "title" });
   s.addText(body, { placeholder: "body" });
   s.addImage({ data: await iconData(icon, HEX.lime), x: 9.35, y: 1.7, w: 3.3, h: 3.3, transparency: 70, objectName: nm("divider-icon") });
-  if (notes) s.addNotes(notes);
+  const n = NOTES[`${num}|${title}`] || notes;
+  if (n) s.addNotes(n);
   return s;
 }
 
@@ -234,7 +237,7 @@ async function build() {
       { text: "Rachit Gupta  ·  23BCE1658", options: { breakLine: true } },
       { text: "Guide: Dr. Lakshmanan K  ·  54758", options: { bold: true, color: LIME } },
     ], T({ x: 0.7, y: 5.35, w: 6.3, h: 1.6, fontSize: 15, color: WHITE, lineSpacingMultiple: 1.15 }));
-    s.addNotes("Introduce the team and the one-line summary: a printed quadruped that carries a working sensing payload, a dashboard that classifies leaf disease, locomotion validated in physics simulation, and legs that now move on the real robot. Say that the talk follows the six criteria of the panel rubric.");
+    s.addNotes(NOTES.__title || "Introduce the team and the one-line summary: a printed quadruped that carries a working sensing payload, a dashboard that classifies leaf disease, locomotion validated in physics simulation, and legs that now move on the real robot. Say that the talk follows the six criteria of the panel rubric.");
   }
 
   // ---------------------------------------------------------------- 2 agenda (ranges filled in at the end)
@@ -728,7 +731,7 @@ async function build() {
     T({ x: 0.85, y: 5.4, w: 5.5, h: 1.3, fontSize: 14.5 }));
     panel(s, 6.75, 5.3, 5.95, 1.45, FOREST);
     s.addText([{ text: "Next step  ", options: { bold: true, color: LIME, breakLine: true } },
-      { text: "Dedicated 6 V servo supply, CoM-centred footholds and a lower stance; stronger servos if the margin is still thin." }],
+      { text: "Dedicated 6 V servo supply, CoM-centred footholds and straighter legs (a taller stance); stronger servos if the margin is still thin." }],
     T({ x: 7.0, y: 5.4, w: 5.5, h: 1.3, fontSize: 14.5, color: WHITE }));
   }
   {
@@ -881,7 +884,7 @@ async function build() {
       "State these before the panel asks.");
     table(s, [
       ["Limitation", "Effect", "How it is handled"],
-      ["Real servos lack torque reserve", "Robot stands and moves its legs but does not step", "Dedicated supply, CoM footholds, lower stance, stronger servos"],
+      ["Real servos lack torque reserve", "Robot stands and moves its legs but does not step", "Dedicated supply, CoM footholds, taller stance, stronger servos"],
       ["Classifier trained on lab photos, 14 crops", "Lower accuracy on field images; any plant passes the gate", "Gate and 50 % threshold; fine-tuning on field images"],
       ["Washed-out ESP32-CAM colours", "Some real foliage falls below the 12 % threshold", "Hold the leaf close; tune the threshold to this camera"],
       ["eCO₂ estimated; PPD42 uncalibrated", "Relative readings, not regulatory values", "Used for trends and alerts"],
@@ -892,7 +895,7 @@ async function build() {
     const s = contentSlide("05 Innovation and Relevance", "Future Work",
       "Ordered by what unlocks the most: walking on hardware first, then a complete sensor set, then acting on readings.");
     const steps = [
-      ["walk", "Walking on hardware", "Dedicated 6 V servo supply; measure torque and voltage under load; CoM footholds and a lower stance; step in place, then walk below 0.18 m/s"],
+      ["walk", "Walking on hardware", "Dedicated 6 V servo supply; measure torque and voltage under load; CoM footholds and a taller stance; step in place, then walk below 0.18 m/s"],
       ["wind", "Complete the sensor set", "Wire both ultrasonic sensors; add a soil-moisture probe; calibrate gas and dust against reference instruments"],
       ["plug", "Act on measurements", "Grove relay to switch an irrigation pump or raise a gas alarm from the dashboard"],
       ["brain", "Field-ready classification", "Fine-tune on images from the robot's camera; replace the colour gate with a learned open-set detector"],
@@ -966,7 +969,7 @@ async function build() {
       { text: "Adithya Sankar Menon  ·  Siddhesh Pushkraj Shinde  ·  Rachit Gupta", options: { breakLine: true } },
       { text: "Guide: Dr. Lakshmanan K" },
     ], T({ x: 0.7, y: 5.4, w: 6.4, h: 0.9, fontSize: 15, color: MIST, lineSpacingMultiple: 1.2 }));
-    s.addNotes("Invite questions. If time allows, run the parts of the demo not yet shown.");
+    s.addNotes(NOTES.__thanks);
   }
   close("close");
 
